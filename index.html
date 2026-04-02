@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>试玩广告渠道适配工具 v3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap');
+:root{--bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:#2a2a3a;--accent:#6c63ff;--accent2:#ff6b6b;--green:#00d4aa;--yellow:#ffd166;--text:#e8e8f0;--text-dim:#888899;--radius:12px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,99,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:48px 24px 80px}
+header{margin-bottom:48px;display:flex;align-items:flex-start;gap:20px}
+.logo-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--accent),#a78bfa);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 0 30px rgba(108,99,255,.3)}
+header h1{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.5px;line-height:1.1}
+header p{color:var(--text-dim);font-size:14px;margin-top:6px;font-weight:400;font-family:'JetBrains Mono',monospace}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:20px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:8px}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+@media(max-width:700px){.steps{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:border-color .2s}
+.card:hover{border-color:rgba(108,99,255,.4)}
+.card-full{grid-column:1/-1}
+.step-num{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.card h3{font-size:15px;font-weight:700;margin-bottom:14px}
+.fw-badge{display:none;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.fw-badge.show{display:flex}
+.fw-badge.tryplay{background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);color:var(--accent)}
+.fw-badge.luna{background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);color:var(--green)}
+.fw-badge.generic{background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.3);color:var(--yellow)}
+.dropzone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);position:relative}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--accent);background:rgba(108,99,255,.08)}
+.dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.drop-icon{font-size:32px;margin-bottom:10px}
+.drop-label{font-size:13px;color:var(--text-dim)}
+.drop-label strong{color:var(--accent)}
+.file-info{display:none;align-items:center;gap:10px;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:8px;padding:10px 14px;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green)}
+.file-info.show{display:flex}
+.url-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.url-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);width:68px;flex-shrink:0}
+.url-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .2s}
+.url-input:focus{border-color:var(--accent)}
+.url-input::placeholder{color:var(--text-dim);opacity:.6}
+.hint{font-size:11px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;line-height:1.7;margin-top:10px;padding:10px;background:var(--surface2);border-radius:8px;border-left:2px solid var(--accent)}
+.channels-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:600px){.channels-grid{grid-template-columns:repeat(2,1fr)}}
+.ch-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .18s;font-family:'Syne',sans-serif;color:var(--text-dim);font-size:12px;font-weight:600;user-select:none}
+.ch-btn:hover{border-color:var(--accent);color:var(--text);transform:translateY(-1px)}
+.ch-btn.active{border-color:var(--accent);background:rgba(108,99,255,.15);color:var(--text);box-shadow:0 0 16px rgba(108,99,255,.2)}
+.ch-btn .ch-icon{font-size:22px}
+.ch-btn .ch-tag{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;background:var(--border);color:var(--text-dim)}
+.ch-btn.active .ch-tag{background:rgba(108,99,255,.3);color:var(--accent)}
+.spec-pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;justify-content:center}
+.pill{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:8px;border:1px solid var(--border);color:var(--text-dim)}
+.gen-row{grid-column:1/-1}
+.btn-gen{width:100%;padding:16px;background:linear-gradient(135deg,var(--accent),#a78bfa);border:none;border-radius:var(--radius);color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.btn-gen:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 24px rgba(108,99,255,.4)}
+.btn-gen:disabled{opacity:.4;cursor:not-allowed}
+.btn-inner{display:flex;align-items:center;justify-content:center;gap:8px}
+.log-panel{display:none;margin-top:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.log-panel.show{display:block}
+.log-hdr{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
+.log-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.log-dot.done{background:var(--green);animation:none}
+.log-body{padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;max-height:240px;overflow-y:auto}
+.ll{display:flex;gap:8px}
+.ll .lt{color:var(--text-dim);flex-shrink:0}
+.ll.ok .lm{color:var(--green)}
+.ll.warn .lm{color:var(--yellow)}
+.ll.err .lm{color:var(--accent2)}
+.ll.info .lm{color:var(--text-dim)}
+.ll.section .lm{color:var(--accent);font-weight:700}
+.results{display:none;margin-top:28px}
+.results.show{display:block}
+.results-title{font-size:13px;font-weight:700;color:var(--text-dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;font-family:'JetBrains Mono',monospace}
+.result-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;transition:all .2s}
+.rc:hover{border-color:var(--green);transform:translateY(-1px)}
+.rc-left{display:flex;align-items:center;gap:10px}
+.rc-icon{font-size:20px}
+.rc-name{font-size:13px;font-weight:700;display:block}
+.rc-meta{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim)}
+.rc-fmt{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(108,99,255,.15);color:var(--accent);border:1px solid rgba(108,99,255,.3)}
+.rc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.btn-all{margin-top:16px;padding:13px 28px;background:rgba(0,212,170,.12);border:1.5px solid var(--green);border-radius:10px;color:var(--green);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-all:hover{background:rgba(0,212,170,.2);box-shadow:0 0 20px rgba(0,212,170,.2)}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo-icon">&#127918;</div>
+    <div>
+      <h1>&#35797;&#29609;&#24191;&#21578;&#28304;&#36947;&#36866;&#37197;&#24037;&#20855;</h1>
+      <p>// Playable Ad Channel Adapter</p>
+      <div class="badge">v3.0 &#183; Luna + TryPlay + &#36890;&#29992;HTML &#183; 7&#20010;&#28193;&#36947;</div>
+    </div>
+  </header>
+  <div class="steps">
+    <div class="card">
+      <div class="step-num">// Step 01</div>
+      <h3>&#19978;&#20256;&#21407;&#22987; HTML &#25991;&#20214;</h3>
+      <div class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept=".html">
+        <div class="drop-icon">&#128196;</div>
+        <div class="drop-label">&#25320;&#25287;&#25110; <strong>&#28857;&#20987;&#36873;&#25321;</strong> HTML &#25991;&#20214;</div>
+      </div>
+      <div class="file-info" id="fileInfo">
+        <span>OK</span>
+        <span id="fileName" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
+        <span id="fileSize" style="color:var(--text-dim);flex-shrink:0"></span>
+      </div>
+      <div class="fw-badge" id="fwBadge">
+        <span id="fwIcon"></span><span id="fwText"></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="step-num">// Step 02</div>
+      <h3>&#37197;&#32622;&#24212;&#29992;&#21830;&#24215;&#38142;&#25509;</h3>
+      <div class="url-row">
+        <div class="url-label">Android</div>
+        <input class="url-input" id="androidUrl" type="url" placeholder="https://play.google.com/store/apps/details?id=...">
+      </div>
+      <div class="url-row">
+        <div class="url-label">iOS</div>
+        <input class="url-input" id="iosUrl" type="url" placeholder="https://apps.apple.com/app/id...">
+      </div>
+      <div class="hint" id="urlHint">&#19978;&#20256;&#25991;&#20214;&#21518;&#23558;&#33258;&#21160;&#26816;&#27979; Store URL</div>
+    </div>
+    <div class="card card-full">
+      <div class="step-num">// Step 03</div>
+      <h3 style="margin-bottom:16px">&#36873;&#25321;&#38656;&#35201;&#36866;&#37197;&#30340;&#28193;&#36947;</h3>
+      <div class="channels-grid" id="channelsGrid"></div>
+    </div>
+    <div class="gen-row">
+      <button class="btn-gen" id="btnGen" disabled>
+        <div class="btn-inner"><span>&#9889;</span><span id="btnText">&#35831;&#20808;&#19978;&#20256;&#25991;&#20214;&#24182;&#36873;&#25321;&#28193;&#36947;</span></div>
+      </button>
+    </div>
+  </div>
+  <div class="log-panel" id="logPanel">
+    <div class="log-hdr"><div class="log-dot" id="logDot"></div><span id="logTitle">&#22788;&#29702;&#20013;...</span></div>
+    <div class="log-body" id="logBody"></div>
+  </div>
+  <div class="results" id="results">
+    <div class="results-title">// &#36866;&#37197;&#23436;&#25104; &#183; &#28857;&#20987;&#21345;&#29255;&#19979;&#36733;</div>
+    <div class="result-grid" id="resultGrid"></div>
+    <button class="btn-all" id="btnAll">&#128230; &#25171;&#21253;&#19979;&#36733;&#20840;&#37096;</button>
+  </div>
+</div>
+<script>
+// ═══ FRAMEWORK DETECTION ═══
+const FW = { TRYPLAY:'tryplay', LUNA:'luna', GENERIC:'generic' };
+
+function detectFramework(c) {
+  if (c.includes('TryPlay:[function') || c.includes('"TryPlay"')) return FW.TRYPLAY;
+  if (c.includes('Luna.Unity') || c.includes('luna:build') || c.includes('window.$environment')) return FW.LUNA;
+  return FW.GENERIC;
+}
+
+function detectStoreUrls(c) {
+  const im = c.match(/iosLink[":'\s]+([^"',\s}]{10,}apps\.apple[^"',\s}]+)/);
+  const am = c.match(/androidLink[":'\s]+([^"',\s}]{10,}play\.google[^"',\s}]+)/);
+  return {
+    ios: im ? im[1].replace(/^["']|["']$/g,'') : null,
+    android: am ? am[1].replace(/^["']|["']$/g,'') : null
+  };
+}
+
+// ═══ CHANNELS ═══
+const CHANNELS = [
+  {id:'facebook',   name:'Facebook',   icon:'F', tag:'Meta',    fmt:'ZIP',  maxMB:5,   specs:['5MB','ZIP','FbPlayableAd','portrait'],   patch:patchFacebook},
+  {id:'google',     name:'Google UAC', icon:'G', tag:'Google',  fmt:'ZIP',  maxMB:5,   specs:['5MB','ZIP','no SDK','portrait+landscape'],patch:patchGoogle},
+  {id:'tiktok',     name:'TikTok',     icon:'T', tag:'Pangle',  fmt:'ZIP',  maxMB:3,   specs:['3MB','ZIP','js-sdk','config.json'],       patch:patchTikTok},
+  {id:'applovin',   name:'AppLovin',   icon:'A', tag:'MAX',     fmt:'HTML', maxMB:5,   specs:['5MB','HTML','MRAID v2','dual orient'],    patch:patchAppLovin},
+  {id:'unity',      name:'Unity Ads',  icon:'U', tag:'MRAID3',  fmt:'HTML', maxMB:5,   specs:['5MB','HTML','MRAID v3','dual orient'],    patch:patchUnity},
+  {id:'mintegral',  name:'Mintegral',  icon:'M', tag:'MTG',     fmt:'ZIP',  maxMB:5,   specs:['5MB','ZIP','lifecycle API','rotation'],   patch:patchMintegral},
+  {id:'ironsource', name:'IronSource', icon:'I', tag:'IS',      fmt:'HTML', maxMB:5,   specs:['5MB','HTML','DAPI','dual orient'],         patch:patchIronSource}
+];
+
+// ═══ STATE ═══
+let originalContent=null, originalFileName='', detectedFW=null, detectedUrls={}, selectedChannels=new Set(), generatedFiles=[];
+
+// ═══ RENDER CHANNELS ═══
+const grid = document.getElementById('channelsGrid');
+CHANNELS.forEach(ch => {
+  const btn = document.createElement('button');
+  btn.className='ch-btn'; btn.dataset.id=ch.id;
+  btn.innerHTML = '<span class="ch-icon">'+ch.icon+'</span><span>'+ch.name+'</span><span class="ch-tag">'+ch.tag+' - '+ch.fmt+'</span><div class="spec-pills">'+ch.specs.map(s=>'<span class="pill">'+s+'</span>').join('')+'</div>';
+  btn.addEventListener('click', () => {
+    selectedChannels.has(ch.id) ? selectedChannels.delete(ch.id) : selectedChannels.add(ch.id);
+    btn.classList.toggle('active');
+    updateBtn();
+  });
+  grid.appendChild(btn);
+});
+
+// ═══ FILE UPLOAD ═══
+const dz = document.getElementById('dropzone');
+const fi = document.getElementById('fileInput');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+fi.addEventListener('change', () => { if (fi.files[0]) handleFile(fi.files[0]); });
+
+function handleFile(f) {
+  if (!f.name.toLowerCase().endsWith('.html')) { alert('Please upload .html file'); return; }
+  originalFileName = f.name.replace(/\.html$/i, '');
+  document.getElementById('fileName').textContent = f.name;
+  document.getElementById('fileSize').textContent = (f.size/1024/1024).toFixed(2)+' MB';
+  document.getElementById('fileInfo').classList.add('show');
+  const reader = new FileReader();
+  reader.onload = e => {
+    originalContent = e.target.result;
+    detectedFW = detectFramework(originalContent);
+    detectedUrls = detectStoreUrls(originalContent);
+    showFwBadge();
+    prefillUrls();
+    updateBtn();
+  };
+  reader.readAsText(f);
+}
+
+function showFwBadge() {
+  const badge=document.getElementById('fwBadge'), icon=document.getElementById('fwIcon'), text=document.getElementById('fwText');
+  badge.className='fw-badge show '+detectedFW;
+  const labels={tryplay:'[Cocos2d + TryPlay]',luna:'[Unity + Luna Labs]',generic:'[Standard HTML5]'};
+  icon.textContent=''; text.textContent=labels[detectedFW];
+}
+
+function prefillUrls() {
+  const hint=document.getElementById('urlHint');
+  if (detectedUrls.ios) document.getElementById('iosUrl').value=detectedUrls.ios;
+  if (detectedUrls.android) document.getElementById('androidUrl').value=detectedUrls.android;
+  if (detectedUrls.ios && detectedUrls.android) {
+    hint.textContent='Store URL auto-detected from file'; hint.style.borderLeftColor='var(--green)'; hint.style.color='var(--green)';
+  } else {
+    hint.textContent='Store URL not found - required for Unity / AppLovin / Mintegral'; hint.style.borderLeftColor='var(--yellow)'; hint.style.color='var(--yellow)';
+  }
+}
+
+function updateBtn() {
+  const btn=document.getElementById('btnGen'), txt=document.getElementById('btnText');
+  if (!originalContent) { btn.disabled=true; txt.textContent='Upload file first'; return; }
+  if (!selectedChannels.size) { btn.disabled=true; txt.textContent='Select at least one channel'; return; }
+  btn.disabled=false; txt.textContent='Adapt '+selectedChannels.size+' channel(s)';
+}
+
+// ═══ GENERATE ═══
+document.getElementById('btnGen').addEventListener('click', runAdapt);
+
+async function runAdapt() {
+  generatedFiles=[];
+  document.getElementById('logPanel').classList.add('show');
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('resultGrid').innerHTML='';
+  document.getElementById('logBody').innerHTML='';
+  document.getElementById('logDot').className='log-dot';
+  document.getElementById('logTitle').textContent='Processing...';
+  document.getElementById('btnGen').disabled=true;
+
+  const androidUrl=document.getElementById('androidUrl').value.trim();
+  const iosUrl=document.getElementById('iosUrl').value.trim();
+  const fwLabels={tryplay:'Cocos2d+TryPlay',luna:'Unity+Luna Labs',generic:'Standard HTML5'};
+
+  log('info','File: '+originalFileName+'.html  '+( originalContent.length/1024/1024).toFixed(2)+'MB');
+  log('section','Framework: '+fwLabels[detectedFW]);
+  if (detectedUrls.ios) log('ok','iOS URL detected');
+  if (detectedUrls.android) log('ok','Android URL detected');
+  await sleep(200);
+
+  for (const chId of selectedChannels) {
+    const ch=CHANNELS.find(c=>c.id===chId);
+    log('section','-- '+ch.name+' --');
+    await sleep(80);
+    try {
+      const opts={androidUrl,iosUrl,fw:detectedFW,baseName:originalFileName};
+      const result=ch.patch(originalContent,opts);
+      (result.warnings||[]).forEach(w=>log('warn','  ! '+w));
+      (result.infos||[]).forEach(i=>log('ok','  + '+i));
+      generatedFiles.push({ch,...result});
+      log('ok','  -> '+result.outputName);
+    } catch(e) {
+      log('err','  ERROR: '+e.message);
+      console.error(e);
+    }
+    await sleep(120);
+  }
+
+  await sleep(200);
+  log('ok','Done! '+generatedFiles.length+' file(s) ready');
+  document.getElementById('logDot').className='log-dot done';
+  document.getElementById('logTitle').textContent='Done - '+generatedFiles.length+' file(s)';
+  document.getElementById('btnGen').disabled=false;
+  renderResults();
+}
+
+function renderResults() {
+  const rg=document.getElementById('resultGrid'); rg.innerHTML='';
+  generatedFiles.forEach(f => {
+    const bytes=f.blob?f.blob.size:new Blob([f.content||'']).size;
+    const sz=bytes>1048576?(bytes/1048576).toFixed(2)+' MB':(bytes/1024).toFixed(0)+' KB';
+    const hasWarn=(f.warnings||[]).length>0;
+    const card=document.createElement('div'); card.className='rc';
+    card.innerHTML='<div class="rc-left"><span class="rc-icon">'+f.ch.icon+'</span><div><span class="rc-name">'+f.ch.name+'</span><span class="rc-meta">'+f.outputName+' - '+sz+'</span></div></div><div class="rc-right"><span class="rc-fmt">'+f.ch.fmt+'</span><span>'+(hasWarn?'[!]':'[OK]')+'</span></div>';
+    card.addEventListener('click',()=>dlFile(f));
+    rg.appendChild(card);
+  });
+  document.getElementById('results').classList.add('show');
+  document.getElementById('btnAll').onclick=dlAll;
+}
+
+function dlFile(f) {
+  const blob=f.blob||new Blob([f.content],{type:'text/html'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=f.outputName; a.click(); URL.revokeObjectURL(a.href);
+}
+async function dlAll() { for(let i=0;i<generatedFiles.length;i++){dlFile(generatedFiles[i]);if(i<generatedFiles.length-1)await sleep(500);} }
+
+function log(type,msg) {
+  const body=document.getElementById('logBody');
+  const ts=new Date().toTimeString().slice(0,8);
+  const line=document.createElement('div'); line.className='ll '+type;
+  line.innerHTML='<span class="lt">['+ts+']</span><span class="lm">'+msg+'</span>';
+  body.appendChild(line); body.scrollTop=body.scrollHeight;
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ═══ ZIP BUILDER ═══
+function buildZip(files) {
+  const enc=new TextEncoder();
+  const toBytes=v=>typeof v==='string'?enc.encode(v):v;
+  const local=[],central=[];
+  let offset=0;
+  function crc32(data) {
+    if(!crc32.t){crc32.t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=c&1?0xedb88320^(c>>>1):c>>>1;crc32.t[i]=c;}}
+    let c=0xffffffff;for(let i=0;i<data.length;i++)c=crc32.t[(c^data[i])&0xff]^(c>>>8);return(c^0xffffffff)>>>0;
+  }
+  const now=new Date();
+  const dt=(now.getHours()<<11)|(now.getMinutes()<<5)|(now.getSeconds()>>1);
+  const dd=((now.getFullYear()-1980)<<9)|((now.getMonth()+1)<<5)|now.getDate();
+  for(const f of files){
+    const nb=enc.encode(f.name),data=toBytes(f.content),crc=crc32(data);
+    const lh=new Uint8Array(30+nb.length),lv=new DataView(lh.buffer);
+    lv.setUint32(0,0x04034b50,true);lv.setUint16(4,20,true);lv.setUint16(6,0,true);lv.setUint16(8,0,true);
+    lv.setUint16(10,dt,true);lv.setUint16(12,dd,true);lv.setUint32(14,crc,true);
+    lv.setUint32(18,data.length,true);lv.setUint32(22,data.length,true);lv.setUint16(26,nb.length,true);lv.setUint16(28,0,true);
+    lh.set(nb,30);local.push({lh,data,nb,crc});
+    const ch=new Uint8Array(46+nb.length),cv=new DataView(ch.buffer);
+    cv.setUint32(0,0x02014b50,true);cv.setUint16(4,20,true);cv.setUint16(6,20,true);cv.setUint16(8,0,true);cv.setUint16(10,0,true);
+    cv.setUint16(12,dt,true);cv.setUint16(14,dd,true);cv.setUint32(16,crc,true);
+    cv.setUint32(20,data.length,true);cv.setUint32(24,data.length,true);cv.setUint16(28,nb.length,true);
+    cv.setUint16(30,0,true);cv.setUint16(32,0,true);cv.setUint16(34,0,true);cv.setUint16(36,0,true);
+    cv.setUint32(38,0x20,true);cv.setUint32(42,offset,true);ch.set(nb,46);central.push(ch);
+    offset+=30+nb.length+data.length;
+  }
+  const cdSz=central.reduce((a,c)=>a+c.length,0);
+  const eocd=new Uint8Array(22),ev=new DataView(eocd.buffer);
+  ev.setUint32(0,0x06054b50,true);ev.setUint16(4,0,true);ev.setUint16(6,0,true);
+  ev.setUint16(8,local.length,true);ev.setUint16(10,local.length,true);ev.setUint32(12,cdSz,true);ev.setUint32(16,offset,true);ev.setUint16(20,0,true);
+  const parts=[];local.forEach(({lh,data})=>{parts.push(lh);parts.push(data);});central.forEach(c=>parts.push(c));parts.push(eocd);
+  const total=parts.reduce((a,p)=>a+p.length,0),out=new Uint8Array(total);let pos=0;
+  parts.forEach(p=>{out.set(p,pos);pos+=p.length;});return out;
+}
+function makeZip(files){return new Blob([buildZip(files)],{type:'application/zip'});}
+
+// ═══ SHARED HELPERS ═══
+function injectHead(c,tag){return c.includes('</head>')?c.replace('</head>',tag+'\n</head>'):c;}
+function injectBodyEnd(c,code){return c.includes('</body>')?c.replace('</body>',code+'\n</body>'):c+code;}
+function injectBodyStart(c,code){return c.includes('<body>')?c.replace('<body>','<body>\n'+code):c;}
+function setComment(c,comment){return c.replace('<head>','<head>\n'+comment,1);}
+function safeName(n){return n.replace(/[^a-zA-Z0-9_]/g,'_');}
+function checkSize(content,limitMB,infos,warnings,label){
+  const mb=new Blob([content]).size/1048576;
+  if(mb>limitMB)warnings.push('Size '+mb.toFixed(2)+'MB exceeds '+label+' '+limitMB+'MB limit');
+  else infos.push('Size '+mb.toFixed(2)+'MB OK');
+}
+
+// ═══ COMMON FIXES (applied per-framework per-channel) ═══
+
+// Fix A: window.top (Unity audit rejects this)
+// Source: Cocos2d engine WeChat iOS scroll compat code
+function fixWindowTop(content,infos,warnings){
+  const count=(content.match(/window\.top/g)||[]).length;
+  if(!count){infos.push('window.top: none');return content;}
+  content=content.replace(/window\.top&&window\.top\.scrollTo\(0,0\)/g,'window.scrollTo(0,0)');
+  const remaining=(content.match(/window\.top/g)||[]).length;
+  if(remaining>0){content=content.replace(/window\.top/g,'window');warnings.push(remaining+' other window.top replaced with window');}
+  infos.push('window.top fix: '+count+' replaced');
+  return content;
+}
+
+// Fix B: console override (Mintegral rule #15)
+// Source: Cocos2d engine + DragonBones polyfills
+function fixConsoleOverride(content,infos,warnings){
+  let fixed=0;
+  const pats=[
+    [/console\.error\|\|\(console\.error=console\.log\)/g,'console.error||(0)'],
+    [/console\.warn\|\|\(console\.warn=console\.log\)/g,'console.warn||(0)'],
+    [/console\.warn\|\|\(console\.warn=function\(\)\{\}\)/g,'console.warn||(0)'],
+    [/console\.assert\|\|\(console\.assert=function\(\)\{\}\)/g,'console.assert||(0)'],
+  ];
+  for(const [pat,rep] of pats){const n=(content.match(pat)||[]).length;if(n>0){content=content.replace(pat,rep);fixed+=n;}}
+  const rem=(content.match(/\bconsole\.(log|warn|error|info|debug)\s*=(?!=)/g)||[]).length;
+  if(rem>0)warnings.push(rem+' console assignments not auto-fixed, check manually');
+  if(fixed>0)infos.push('console override fix: '+fixed+' replaced');
+  else infos.push('console override: none found');
+  return content;
+}
+
+// Fix C: Luna console wrapper (Mintegral rule #15)
+// Source: Luna Labs Script[1] patchConsoleMethod wraps console.log/info/debug
+function fixLunaConsolePatch(content,infos){
+  const OLD_PAT = /function patchConsoleMethod\(name\)\s*\{[\s\S]*?c\[name\]\s*=\s*wrapped;\s*\}/;
+  if(OLD_PAT.test(content)){
+    content=content.replace(OLD_PAT,'function patchConsoleMethod(name){/* Mintegral rule 15: no console override */}');
+    infos.push('Luna patchConsoleMethod disabled (rule 15)');
+  } else {
+    infos.push('Luna patchConsoleMethod: not found / already clean');
+  }
+  return content;
+}
+
+// ═══ LUNA HELPERS ═══
+const LUNA_INSTALL_MRAID=/(<script[^>]*>)window\.addEventListener\("luna:build",\(function\(\)\{Bridge\.ready\(\(function\(\)\{Luna\.Unity\.Playable\.InstallFullGame[\s\S]*?<\/script>/;
+
+function lunaSetPlatform(content,val,infos,warnings){
+  const pat=/(targetPlatform:)"(\w+)"/;
+  if(pat.test(content)){content=content.replace(pat,'$1"'+val+'"');infos.push('targetPlatform -> "'+val+'"');}
+  else warnings.push('targetPlatform field not found');
+  return content;
+}
+
+function lunaRemoveMraid(content,infos){
+  // Remove mraid init script
+  content=content.replace(/!function\(\)\{var n=!1,e=!1;function t\(\)\{return mraid\.isViewable[\s\S]*?<\/script>/,'');
+  // Replace InstallFullGame with FB version
+  const fbInstall='<scr'+'ipt>window.addEventListener("luna:build",(function(){Bridge.ready((function(){Luna.Unity.Playable.InstallFullGame=function(n,i){window.pi.logCta();if(window.FbPlayableAd&&window.FbPlayableAd.onCTAClick){window.FbPlayableAd.onCTAClick();}else{n=n||window.$environment.packageConfig.iosLink,i=i||window.$environment.packageConfig.androidLink;const o=/iphone|ipad|ipod|macintosh/i.test(window.navigator.userAgent.toLowerCase())?n:i;window.open(o,"_blank");}}}))}))<'+'/script>';
+  content=content.replace(LUNA_INSTALL_MRAID,fbInstall);
+  infos.push('mraid removed, InstallFullGame -> FbPlayableAd.onCTAClick');
+  return content;
+}
+
+function lunaInstallTikTok(content,infos){
+  const ttInstall='<scr'+'ipt>window.addEventListener("luna:build",(function(){Bridge.ready((function(){Luna.Unity.Playable.InstallFullGame=function(n,i){window.pi.logCta();if(typeof window.openAppStore==="function"){window.openAppStore();}else{n=n||window.$environment.packageConfig.iosLink,i=i||window.$environment.packageConfig.androidLink;const o=/iphone|ipad|ipod|macintosh/i.test(window.navigator.userAgent.toLowerCase())?n:i;window.open(o,"_blank");}}}))}))<'+'/script>';
+  content=content.replace(LUNA_INSTALL_MRAID,ttInstall);
+  infos.push('InstallFullGame -> openAppStore()');
+  return content;
+}
+
+function lunaInstallMTG(content,infos){
+  const mtgInstall='<scr'+'ipt>window.addEventListener("luna:build",(function(){Bridge.ready((function(){Luna.Unity.Playable.InstallFullGame=function(){window.pi.logCta();if(window.install){window.install();}else{console.warn("MTG install() not available");}}}))}))<'+'/script>';
+  content=content.replace(LUNA_INSTALL_MRAID,mtgInstall);
+  infos.push('InstallFullGame -> window.install()');
+  return content;
+}
+
+// ═══ PATCH: FACEBOOK ═══
+function patchFacebook(content,{fw,baseName}){
+  const warnings=[],infos=[];
+  if(fw===FW.TRYPLAY){
+    const old='r.prototype.download=function(){console.log("fb \u70b9\u51fb\u4e0b\u8f7d"),window.FbPlayableAd&&window.FbPlayableAd.onCTAClick()},r';
+    const neu='r.prototype.download=function(){console.log("fb click");if(window.FbPlayableAd&&window.FbPlayableAd.onCTAClick){window.FbPlayableAd.onCTAClick();}},r';
+    if(content.includes(old)){content=content.replace(old,neu);infos.push('FbPlayableAd.onCTAClick OK');}
+    else if(!content.includes('FbPlayableAd.onCTAClick'))warnings.push('FbPlayableAd.onCTAClick not found');
+    else infos.push('FbPlayableAd.onCTAClick already OK');
+    content=fixWindowTop(content,infos,warnings);
+  } else if(fw===FW.LUNA){
+    content=lunaSetPlatform(content,'facebook',infos,warnings);
+    content=lunaRemoveMraid(content,infos);
+  } else {
+    content=injectBodyEnd(content,'<scr'+'ipt>window.__fbDl=function(){if(window.FbPlayableAd&&window.FbPlayableAd.onCTAClick)window.FbPlayableAd.onCTAClick();};<'+'/script>');
+  }
+  content=injectHead(content,'<meta data-name="ad.orientation" content="portrait">');
+  infos.push('portrait orientation meta');
+  content=setComment(content,'<!-- FACEBOOK_META_PLAYABLE -->');
+  const htmlMB=new Blob([content]).size/1048576;
+  if(htmlMB>2){
+    warnings.push('HTML '+htmlMB.toFixed(2)+'MB > 2MB limit, using ZIP (5MB limit)');
+    checkSize(content,5,infos,warnings,'Facebook ZIP');
+    return{blob:makeZip([{name:'index.html',content}]),outputName:baseName+'_facebook.zip',warnings,infos,ch:{fmt:'ZIP'}};
+  }
+  checkSize(content,2,infos,warnings,'Facebook HTML');
+  return{content,outputName:baseName+'_facebook.html',warnings,infos,ch:{fmt:'HTML'}};
+}
+
+// ═══ PATCH: GOOGLE ═══
+function patchGoogle(content,{fw,baseName}){
+  const warnings=[],infos=[];
+  if(fw===FW.TRYPLAY)content=fixWindowTop(content,infos,warnings);
+  if(content.includes('ExitApi.exit()')){content=content.replace(/ExitApi\.exit\(\);?/g,'/* Google: no SDK needed */');infos.push('removed legacy ExitApi.exit()');}
+  content=injectHead(content,'<meta data-name="ad.orientation" content="portrait,landscape">');
+  infos.push('portrait,landscape orientation meta');
+  content=setComment(content,'<!-- GOOGLE_UAC_PLAYABLE -->');
+  checkSize(content,5,infos,warnings,'Google');
+  return{blob:makeZip([{name:'index.html',content}]),outputName:baseName+'_google.zip',warnings,infos,ch:{fmt:'ZIP'}};
+}
+
+// ═══ PATCH: TIKTOK ═══
+function patchTikTok(content,{fw,baseName}){
+  const warnings=[],infos=[];
+  const sdk='<scr'+'ipt src="https://sf16-muse-va.ibytedtos.com/obj/union-fe-nc-i18n/playable/sdk/playable-sdk.js"><'+'/script>';
+  if(fw===FW.TRYPLAY){
+    const old='r.prototype.download=function(){window.playableSDK&&window.playableSDK.openAppStore()},r';
+    const neu='r.prototype.download=function(){if(typeof window.openAppStore==="function"){window.openAppStore();}else if(window.playableSDK){window.playableSDK.openAppStore();}},r';
+    if(content.includes(old)){content=content.replace(old,neu);infos.push('Playable adapter -> openAppStore()');}
+    else warnings.push('Playable adapter not found, check manually');
+    content=fixWindowTop(content,infos,warnings);
+  } else if(fw===FW.LUNA){
+    content=lunaSetPlatform(content,'unityads',infos,warnings);
+    content=lunaInstallTikTok(content,infos);
+  } else {
+    content=injectBodyEnd(content,'<scr'+'ipt>window.__ttDl=function(){if(typeof window.openAppStore==="function")window.openAppStore();};<'+'/script>');
+  }
+  if(!content.includes('playable-sdk.js')){content=injectBodyStart(content,sdk);infos.push('Pangle js-sdk injected');}
+  else infos.push('Pangle js-sdk already present');
+  content=setComment(content,'<!-- TIKTOK_PANGLE_PLAYABLE -->');
+  checkSize(content,3,infos,warnings,'TikTok');
+  const config=JSON.stringify({playable_orientation:0,playable_languages:['en']},null,2);
+  infos.push('config.json: playable_orientation=0 (dual)');
+  return{blob:makeZip([{name:'index.html',content},{name:'config.json',content:config}]),outputName:baseName+'_tiktok.zip',warnings,infos,ch:{fmt:'ZIP'}};
+}
+
+// ═══ PATCH: APPLOVIN ═══
+function patchAppLovin(content,{androidUrl,iosUrl,fw,baseName}){
+  const warnings=[],infos=[];
+  if(!androidUrl)warnings.push('Android Store URL not set');
+  if(!iosUrl)warnings.push('iOS Store URL not set');
+  const sa=androidUrl||'YOUR_ANDROID_URL',si=iosUrl||'YOUR_IOS_URL';
+  if(fw===FW.TRYPLAY){
+    const old='r.prototype.init=function(){},r.prototype.download=function(){console.log("\u5c55\u793a\u5e7f\u544a AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
+    const old2='r.prototype.init=function(){},r.prototype.download=function(){console.log("AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
+    const neu='r.prototype.init=function(){this._ic=0;var self=this;if(window.mraid){if(window.mraid.getState()==="loading"){window.mraid.addEventListener("ready",function(){self._onReady();});}else{this._onReady();}}},r.prototype._onReady=function(){window.mraid.addEventListener("viewableChange",function(v){if(!v){try{cc.audioEngine&&cc.audioEngine.stopAll();}catch(e){}}});},r.prototype.download=function(){this._ic++;if(this._ic<2){return;}var isA=Boolean(navigator.userAgent.match(/android/gi));var u=isA?"'+sa+'":"'+si+'";if(window.mraid&&window.mraid.open){window.mraid.open(u);}else{window.open(u,"_blank");}},r';
+    if(content.includes(old2)){content=content.replace(old2,neu);infos.push('AppLovin adapter updated (MRAID v2 + first-click guard)');}
+    else if(content.includes(old)){content=content.replace(old,neu);infos.push('AppLovin adapter updated (MRAID v2 + first-click guard)');}
+    else warnings.push('AppLovin adapter structure differs, check output');
+    content=fixWindowTop(content,infos,warnings);
+  } else if(fw===FW.LUNA){
+    content=lunaSetPlatform(content,'unityads',infos,warnings);
+    infos.push('Luna MRAID path: mraid.open() handled by framework');
+  } else {
+    content=injectBodyEnd(content,'<scr'+'ipt>(function(){var _ic=0,_a="'+sa+'",_i="'+si+'";function _dl(){_ic++;if(_ic<2)return;var isA=/android/i.test(navigator.userAgent);var u=isA?_a:_i;if(window.mraid&&window.mraid.open){window.mraid.open(u);}else{window.open(u,"_blank");}}if(window.mraid){var r=function(){window.mraid.addEventListener("viewableChange",function(v){if(!v){try{document.querySelectorAll("audio,video").forEach(function(e){e.pause();});}catch(e){}}});};window.mraid.getState()==="loading"?window.mraid.addEventListener("ready",r):r();}window.__alDl=_dl;})();<'+'/script>');
+  }
+  content=injectHead(content,'<meta data-name="ad.orientation" content="portrait,landscape">');
+  infos.push('dual orientation meta');
+  content=setComment(content,'<!-- APPLOVIN_MAX_PLAYABLE_MRAID2 -->');
+  checkSize(content,5,infos,warnings,'AppLovin');
+  return{content,outputName:baseName+'_applovin.html',warnings,infos,ch:{fmt:'HTML'}};
+}
+
+// ═══ PATCH: UNITY ═══
+function patchUnity(content,{androidUrl,iosUrl,fw,baseName}){
+  const warnings=[],infos=[];
+  if(!androidUrl)warnings.push('Android Store URL not set');
+  if(!iosUrl)warnings.push('iOS Store URL not set');
+  const sa=androidUrl||'YOUR_ANDROID_URL',si=iosUrl||'YOUR_IOS_URL';
+  content=fixWindowTop(content,infos,warnings);
+  if(fw===FW.TRYPLAY){
+    if(content.includes('Unity:[function')){
+      content=replaceTryPlayUnityBlock(content,sa,si);
+      infos.push('Unity adapter replaced (MRAID v3)');
+    } else warnings.push('Unity:[function block not found');
+    if(!content.includes('this.unity.gameEnd()')){
+      const old='f.prototype.gameEnd=function(){this.mtg.gameEnd(),this.kwai.gameEnd()}';
+      const neu='f.prototype.gameEnd=function(){this.mtg.gameEnd(),this.kwai.gameEnd(),this.unity.gameEnd()}';
+      if(content.includes(old)){content=content.replace(old,neu);infos.push('TryPlay.gameEnd -> unity.gameEnd()');}
+    } else infos.push('unity.gameEnd() already present');
+    if(!content.includes('this.unity.startPlay()')){
+      const old='f.prototype.startPlay=function(){this.kwai.startPlay()}';
+      const neu='f.prototype.startPlay=function(){this.kwai.startPlay(),this.unity.startPlay()}';
+      if(content.includes(old)){content=content.replace(old,neu);infos.push('TryPlay.startPlay -> unity.startPlay()');}
+    } else infos.push('unity.startPlay() already present');
+  } else if(fw===FW.LUNA){
+    if(content.includes('"unityads"'))infos.push('targetPlatform already "unityads"');
+    else content=lunaSetPlatform(content,'unityads',infos,warnings);
+    infos.push('MRAID v3 handled by Luna framework');
+  } else {
+    content=injectBodyEnd(content,'<scr'+'ipt>(function(){var _a="'+sa+'",_i="'+si+'";function onReady(){if(!window.mraid)return;window.mraid.addEventListener("viewableChange",function(v){if(v)onV();});if(window.mraid.isViewable())onV();}function onV(){if(window.mraid&&window.mraid.notifyReady)window.mraid.notifyReady();}window.__uDl=function(){var isA=/android/i.test(navigator.userAgent);if(window.mraid&&window.mraid.open)window.mraid.open(isA?_a:_i);};window.__uEnd=function(){if(window.mraid&&window.mraid.notifyFinish)window.mraid.notifyFinish();};if(window.mraid&&window.mraid.getState()==="loading"){window.mraid.addEventListener("ready",onReady);}else{onReady();}})();<'+'/script>');
+    infos.push('standalone MRAID v3 handler injected');
+  }
+  content=setComment(content,'<!-- UNITY_ADS_PLAYABLE_MRAID3 -->');
+  checkSize(content,5,infos,warnings,'Unity');
+  return{content,outputName:baseName+'_unity.html',warnings,infos,ch:{fmt:'HTML'}};
+}
+
+function replaceTryPlayUnityBlock(content,sa,si){
+  const start=content.indexOf('Unity:[function');
+  if(start===-1)return content;
+  let depth=0,i=start,end=-1;
+  while(i<content.length&&content[i]!=='[')i++;
+  depth=1;i++;
+  while(i<content.length&&depth>0){if(content[i]==='[')depth++;if(content[i]===']'){depth--;if(depth===0){end=i;break;}}i++;}
+  if(end===-1)return content;
+  const nb='Unity:[function(t,e,o){"use strict";cc._RF.push(e,"40058WGtSxHi7iXdkXdzM9h","Unity"),Object.defineProperty(o,"__esModule",{value:!0});var i=(r.prototype.init=function(){window.mraid&&"loading"===window.mraid.getState()?window.mraid&&window.mraid.addEventListener("ready",this.onSdkReady.bind(this)):this.onSdkReady()},r.prototype.onSdkReady=function(){window.mraid&&window.mraid.addEventListener("viewableChange",this.viewableChangeHandler.bind(this)),window.mraid&&window.mraid.isViewable()&&this.showMyAd()},r.prototype.showMyAd=function(){window.mraid&&window.mraid.notifyReady&&window.mraid.notifyReady()},r.prototype.viewableChangeHandler=function(t){t&&this.showMyAd()},r.prototype.gameEnd=function(){window.mraid&&window.mraid.notifyFinish&&window.mraid.notifyFinish()},r.prototype.startPlay=function(){window.mraid&&window.mraid.notifyStateChange&&window.mraid.notifyStateChange("playing")},r.prototype.download=function(){var t=Boolean(navigator.userAgent.match(/android/gi));t?window.mraid&&window.mraid.open("'+sa+'"):window.mraid&&window.mraid.open("'+si+'")},r);function r(){this.androidUrl="'+sa+'",this.iosUrl="'+si+'",this.init()}o.default=i,cc._RF.pop()},{}]';
+  return content.slice(0,start)+nb+content.slice(end+1);
+}
+
+// ═══ PATCH: MINTEGRAL ═══
+function patchMintegral(content,{androidUrl,iosUrl,fw,baseName}){
+  const warnings=[],infos=[];
+
+  if(fw===FW.TRYPLAY){
+    // Fix console overrides (Cocos2d + DragonBones polyfills)
+    content=fixConsoleOverride(content,infos,warnings);
+    // Fix Mindworks adapter lifecycle
+    const old='c.prototype.init=function(){window.gameStart=function(){console.log("\u5f00\u59cb\u8c03\u7528")},window.gameClose=function(){console.log("\u7ed3\u675f\u8c03\u7528")},window.gameReady&&window.gameReady()},c.prototype.gameEnd=function(){window.gameEnd&&window.gameEnd()},c.prototype.download=function(){console.log("mtg \u70b9\u51fb\u4e0b\u8f7d"),window.install&&window.install()}';
+    const neu='c.prototype.init=function(){window.gameStart=function(){};window.gameClose=function(){try{cc.audioEngine&&cc.audioEngine.stopAll();}catch(e){}};window.gameRetry=function(){};if(window.gameReady){window.gameReady();}},c.prototype.gameEnd=function(){if(window.gameEnd){window.gameEnd();}},c.prototype.download=function(){if(window.install){window.install();}}';
+    if(content.includes(old)){content=content.replace(old,neu);infos.push('Mindworks adapter lifecycle updated');}
+    else{content=content.replace('r.prototype.download=function(){console.log("mtg \u70b9\u51fb\u4e0b\u8f7d"),window.install&&window.install()}','r.prototype.download=function(){if(window.install){window.install();}}');warnings.push('Mindworks adapter structure differs, simple fix applied');}
+    content=fixWindowTop(content,infos,warnings);
+
+  } else if(fw===FW.LUNA){
+    // Fix Luna console wrapper (rule #15)
+    content=fixLunaConsolePatch(content,infos);
+    // Switch platform
+    content=lunaSetPlatform(content,'mintegral',infos,warnings);
+    // Confirm GameEnded API
+    if(content.includes('GameEnded'))infos.push('GameEnded API present');
+    else warnings.push('GameEnded API not found');
+    // Replace InstallFullGame -> window.install()
+    content=lunaInstallMTG(content,infos);
+    // Inject lifecycle bridge: gameStart/Close/Retry exposed to MTG
+    // gameReady called on luna:ready, gameEnd called on luna:ended
+    var mtgBridge = '<scr'+'ipt>\n'
+      + 'window.gameStart=window.gameStart||function(){};\n'
+      + 'window.gameClose=window.gameClose||function(){};\n'
+      + 'window.gameRetry=window.gameRetry||function(){};\n'
+      + 'window.addEventListener("luna:ready",function(){'
+      +   'if(window.gameReady){window.gameReady();}'
+      + '});\n'
+      + 'window.addEventListener("luna:ended",function(){'
+      +   'if(window.gameEnd){window.gameEnd();}'
+      + '});\n'
+      + '<'+'/script>';
+    content=injectBodyEnd(content,mtgBridge);
+    infos.push('MTG lifecycle bridge injected (gameReady@luna:ready / gameEnd@luna:ended)');
+
+  } else {
+    var mtgGeneric = '<scr'+'ipt>(function(){'
+      + 'window.gameStart=function(){};'
+      + 'window.gameClose=function(){try{document.querySelectorAll("audio,video").forEach(function(e){e.pause();});}catch(e){}};'
+      + 'window.gameRetry=function(){};'
+      + 'if(typeof gameReady==="function"){gameReady();}else if(window.gameReady){window.gameReady();}'
+      + 'window.__mtgDl=function(){if(window.install){window.install();}};'
+      + 'window.__mtgEnd=function(){if(window.gameEnd){window.gameEnd();}};'
+      + '})();<'+'/script>';
+    content=injectBodyEnd(content,mtgGeneric);
+    infos.push('MTG lifecycle handler injected');
+  }
+
+  content=injectHead(content,'<meta data-name="ad.orientation" content="portrait,landscape">');
+  infos.push('dual orientation meta');
+  content=setComment(content,'<!-- MINTEGRAL_PLAYABLE -->');
+  checkSize(content,5,infos,warnings,'Mintegral');
+  const sn=safeName(baseName);
+  infos.push('ZIP naming: '+sn+'.zip -> '+sn+'.html');
+  return{blob:makeZip([{name:sn+'.html',content}]),outputName:sn+'.zip',warnings,infos,ch:{fmt:'ZIP'}};
+}
+
+// ═══ PATCH: IRONSOURCE ═══
+function patchIronSource(content,{fw,baseName}){
+  const warnings=[],infos=[];
+  if(fw===FW.TRYPLAY){
+    if(content.includes('window.dapi'))infos.push('DAPI calls present');
+    else warnings.push('window.dapi not found');
+    content=fixWindowTop(content,infos,warnings);
+  } else if(fw===FW.LUNA){
+    content=lunaSetPlatform(content,'ironsource',infos,warnings);
+    infos.push('Luna framework auto-switches to DAPI');
+  } else {
+    content=injectBodyEnd(content,'<scr'+'ipt>(function(){if(window.dapi){function onReady(){window.dapi.isViewable()&&onV({isViewable:true});window.dapi.addEventListener("viewableChange",onV);}function onV(e){if(e.isViewable){}}if(window.dapi.isReady()){onReady();}else{window.dapi.addEventListener("ready",onReady);}}window.__isDl=function(){if(window.dapi&&window.dapi.openStoreUrl){window.dapi.openStoreUrl();}};})();<'+'/script>');
+    infos.push('DAPI handler injected');
+  }
+  content=injectHead(content,'<meta data-name="ad.orientation" content="portrait,landscape">');
+  infos.push('dual orientation meta');
+  content=setComment(content,'<!-- IRONSOURCE_PLAYABLE -->');
+  checkSize(content,5,infos,warnings,'IronSource');
+  return{content,outputName:baseName+'_ironsource.html',warnings,infos,ch:{fmt:'HTML'}};
+}
+</script>
+</body>
+</html>

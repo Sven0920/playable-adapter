@@ -352,8 +352,9 @@ function switchTab(id) {
 
 <script>
 // ════════════════════════════════════════════════════
-//  资源替换工具 JS
+//  资源替换工具 JS（DOMContentLoaded 后执行）
 // ════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
 
     let originalHtml = "";
     let currentHtml = "";
@@ -2011,6 +2012,7 @@ function passToAdapter() {
   switchTab('tab-adapter');
 }
 
+});
 
 // ════════════════════════════════════════════════════
 //  渠道适配工具 JS

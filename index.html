@@ -3,19 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>试玩广告渠道适配工具 v3</title>
+<title>Playable 工具箱</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap');
 :root{--bg:#0a0a0f;--surface:#111118;--surface2:#1a1a24;--border:#2a2a3a;--accent:#6c63ff;--accent2:#ff6b6b;--green:#00d4aa;--yellow:#ffd166;--text:#e8e8f0;--text-dim:#888899;--radius:12px}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,99,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* ── Tab 导航 ── */
+.tab-nav{position:relative;z-index:10;display:flex;gap:0;border-bottom:2px solid var(--border);padding:0 32px;background:var(--bg)}
+.tab-btn{padding:16px 28px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text-dim);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:8px;letter-spacing:.3px}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-badge{font-family:'JetBrains Mono',monospace;font-size:9px;padding:2px 6px;border-radius:4px;background:rgba(108,99,255,.15);color:var(--accent)}
+.tab-btn.active .tab-badge{background:rgba(108,99,255,.3)}
+
+/* ── 面板 ── */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ── 通用容器 ── */
 .container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:48px 24px 80px}
-header{margin-bottom:48px;display:flex;align-items:flex-start;gap:20px}
+
+/* ── 页头 ── */
+header{margin-bottom:40px;display:flex;align-items:flex-start;gap:20px}
 .logo-icon{width:52px;height:52px;background:linear-gradient(135deg,var(--accent),#a78bfa);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;box-shadow:0 0 30px rgba(108,99,255,.3)}
-header h1{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.5px;line-height:1.1}
-header p{color:var(--text-dim);font-size:14px;margin-top:6px;font-weight:400;font-family:'JetBrains Mono',monospace}
+header h1{font-size:clamp(22px,3.5vw,32px);font-weight:800;letter-spacing:-.5px;line-height:1.1}
+header p{color:var(--text-dim);font-size:13px;margin-top:6px;font-family:'JetBrains Mono',monospace}
 .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:20px;padding:3px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);margin-top:8px}
+
+/* ── 流程提示横幅 ── */
+.flow-banner{background:rgba(108,99,255,.08);border:1px solid rgba(108,99,255,.2);border-radius:var(--radius);padding:14px 20px;margin-bottom:28px;display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim)}
+.flow-step{color:var(--accent);font-weight:700}
+.flow-arrow{color:var(--border)}
+
+/* ── Card 和 Grid（适配工具样式）── */
 .steps{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
 @media(max-width:700px){.steps{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;transition:border-color .2s}
@@ -85,28 +108,188 @@ header p{color:var(--text-dim);font-size:14px;margin-top:6px;font-weight:400;fon
 .rc-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 .btn-all{margin-top:16px;padding:13px 28px;background:rgba(0,212,170,.12);border:1.5px solid var(--green);border-radius:10px;color:var(--green);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
 .btn-all:hover{background:rgba(0,212,170,.2);box-shadow:0 0 20px rgba(0,212,170,.2)}
+
+/* ── 替换工具样式（来自 replacer，统一为暗色主题）── */
+.r-wrap{font-family:Inter,"Helvetica Neue",sans-serif}
+.r-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.r-section b{font-size:13px;font-weight:700;color:var(--text);display:block;margin-bottom:12px;font-family:'Syne',sans-serif}
+.r-drop{border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);position:relative;min-height:80px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px}
+.r-drop.drag-over,.r-drop:hover{border-color:var(--accent);background:rgba(108,99,255,.08)}
+.r-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.r-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.r-btn{padding:8px 16px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.r-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.r-btn:disabled{opacity:.35;cursor:not-allowed}
+.r-btn.primary{background:linear-gradient(135deg,var(--accent),#a78bfa);border-color:transparent;color:#fff}
+.r-btn.primary:hover:not(:disabled){box-shadow:0 4px 16px rgba(108,99,255,.4);transform:translateY(-1px)}
+.r-btn.danger{background:#a03030;border-color:transparent;color:#fff}
+.r-btn.to-adapter{background:linear-gradient(135deg,var(--green),#00a884);border-color:transparent;color:#fff}
+.r-btn.to-adapter:hover:not(:disabled){box-shadow:0 4px 16px rgba(0,212,170,.4);transform:translateY(-1px)}
+#imgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
+.img-card{background:var(--surface2);border:2px solid var(--border);border-radius:8px;padding:8px;cursor:pointer;transition:all .2s;text-align:center}
+.img-card:hover{border-color:var(--accent)}
+.img-card.selected{border-color:var(--accent);background:rgba(108,99,255,.1)}
+.img-card img{width:100%;height:80px;object-fit:contain;border-radius:4px;margin-bottom:6px}
+.img-card .img-name{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);word-break:break-all;line-height:1.3}
+.img-card .img-size{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--accent);margin-top:2px}
+.r-log{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);height:120px;overflow-y:auto;white-space:pre-wrap;line-height:1.6}
+.r-input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:border-color .2s;margin-bottom:8px}
+.r-input:focus{border-color:var(--accent)}
+.r-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.r-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);width:80px;flex-shrink:0}
+.r-stats{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);margin-bottom:10px;padding:8px;background:var(--surface2);border-radius:6px}
+.r-compress{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);padding:10px;background:var(--surface2);border-radius:8px;margin:8px 0}
+.r-compress label{display:flex;align-items:center;gap:6px}
+.r-compress input[type=number]{width:60px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:4px 6px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px}
+
+/* ── 从替换工具来的横幅提示 ── */
+.r-passed-banner{display:none;background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:var(--radius);padding:14px 20px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green);align-items:center;gap:10px}
+.r-passed-banner.show{display:flex}
+
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 </style>
 </head>
 <body>
-<div class="container">
+
+<!-- ── 全局 Tab 导航 ── -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('tab-replacer')">
+    &#128247; 资源替换
+    <span class="tab-badge">Step 1</span>
+  </button>
+  <button class="tab-btn" onclick="switchTab('tab-adapter')">
+    &#9889; 渠道适配
+    <span class="tab-badge">Step 2</span>
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 1: 资源替换工具
+═══════════════════════════════════════════ -->
+<div id="tab-replacer" class="tab-panel active">
+<div class="container r-wrap">
+
   <header>
-    <div class="logo-icon">&#127918;</div>
+    <div class="logo-icon">&#128247;</div>
     <div>
-      <h1>&#35797;&#29609;&#24191;&#21578;&#28304;&#36947;&#36866;&#37197;&#24037;&#20855;</h1>
-      <p>// Playable Ad Channel Adapter</p>
-      <div class="badge">v3.0 &#183; Luna + TryPlay + &#36890;&#29992;HTML &#183; 7&#20010;&#28193;&#36947;</div>
+      <h1>Playable 资源替换</h1>
+      <p>// 替换图片 · 商店链接 · 标题文本 · 然后进入渠道适配</p>
+      <div class="badge">Step 1 of 2 · 完成后点击"进入渠道适配"</div>
     </div>
   </header>
+
+  <div class="flow-banner">
+    <span class="flow-step">① 上传 HTML</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">② 替换资源</span>
+    <span class="flow-arrow">→</span>
+    <span>点击 <strong style="color:var(--green)">进入渠道适配</strong></span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">③ 选渠道 → 下载</span>
+  </div>
+
+  <!-- 上传区 -->
+  <div class="r-section">
+    <b>&#128196; 上传 HTML 文件</b>
+    <div class="r-drop" id="htmlDrop">
+      <input type="file" id="htmlFile" accept=".html,.htm" />
+      <div style="font-size:28px">&#128196;</div>
+      <div style="font-size:13px;color:var(--text-dim)">拖拽或 <strong style="color:var(--accent)">点击选择</strong> HTML 文件</div>
+    </div>
+    <div id="fileInfo" style="display:none;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--green);background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.3);border-radius:8px;padding:10px 14px"></div>
+  </div>
+
+  <!-- 图片替换 -->
+  <div class="r-section">
+    <b>&#128247; 图片列表</b>
+    <div id="imgStats" class="r-stats">未检测到</div>
+    <div class="r-actions">
+      <button class="r-btn primary" id="replaceBtn" disabled>替换选中图片（选择文件）</button>
+      <button class="r-btn danger" id="clearImgBtn" disabled>清除选中图片</button>
+      <input id="imgFile" type="file" accept="image/*" style="display:none" />
+    </div>
+    <div class="r-compress">
+      <label><input type="checkbox" id="compressCheck"> 压缩图片</label>
+      <label>色深 <input type="number" id="compressColors" value="256" min="2" max="256"></label>
+      <label>质量 <input type="number" id="compressQuality" value="0.9" min="0.05" max="1" step="0.05"></label>
+      <label>最大宽 <input type="number" id="compressMaxW" value="1024" min="64" max="4096"></label>
+    </div>
+    <div id="imgGrid"></div>
+  </div>
+
+  <!-- 商店链接 -->
+  <div class="r-section">
+    <b>&#128279; 商店链接更换</b>
+    <div id="cfgStats" class="r-stats">未检测到</div>
+    <div class="r-row">
+      <div class="r-label">&#129302; Android</div>
+      <input class="r-input" id="cfgAndroid" placeholder="https://play.google.com/store/apps/details?id=..." style="margin:0">
+      <button class="r-btn" id="deleteAndroidBtn" disabled style="flex-shrink:0">清除</button>
+    </div>
+    <div class="r-row">
+      <div class="r-label">&#127822; iOS</div>
+      <input class="r-input" id="cfgIos" placeholder="https://apps.apple.com/app/id..." style="margin:0">
+      <button class="r-btn" id="deleteIosBtn" disabled style="flex-shrink:0">清除</button>
+    </div>
+    <button class="r-btn primary" id="applyCfgBtn" style="margin-top:8px">应用链接</button>
+  </div>
+
+  <!-- 标题替换 -->
+  <div class="r-section">
+    <b>&#9999;&#65039; 标题文本替换（.title）</b>
+    <div id="titleStats" class="r-stats">未检测到</div>
+    <input class="r-input" id="titleInput" placeholder="输入要替换的新文本">
+    <button class="r-btn primary" id="applyTitleBtn">应用标题</button>
+  </div>
+
+  <!-- 操作栏 -->
+  <div class="r-section">
+    <b>&#128190; 导出</b>
+    <div class="r-actions">
+      <button class="r-btn" id="downloadBtn" disabled>&#11015; 下载修改后的 HTML</button>
+      <button class="r-btn to-adapter" id="toAdapterBtn" disabled>&#9889; 进入渠道适配 →</button>
+    </div>
+  </div>
+
+  <!-- 日志 -->
+  <div class="r-section">
+    <b>&#128221; 日志</b>
+    <textarea id="log" class="r-log" readonly></textarea>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     TAB 2: 渠道适配工具
+═══════════════════════════════════════════ -->
+<div id="tab-adapter" class="tab-panel">
+<div class="container">
+
+  <header>
+    <div class="logo-icon">&#9889;</div>
+    <div>
+      <h1>渠道适配</h1>
+      <p>// Luna + TryPlay + 通用HTML · 7个渠道</p>
+      <div class="badge">Step 2 of 2 · v3.0</div>
+    </div>
+  </header>
+
+  <!-- 从替换工具传入的提示 -->
+  <div class="r-passed-banner" id="passedBanner">
+    <span>&#9989;</span>
+    <span id="passedBannerText">已从资源替换工具导入文件，可直接选择渠道适配</span>
+  </div>
+
   <div class="steps">
     <div class="card">
       <div class="step-num">// Step 01</div>
-      <h3>&#19978;&#20256;&#21407;&#22987; HTML &#25991;&#20214;</h3>
+      <h3>上传原始 HTML 文件</h3>
       <div class="dropzone" id="dropzone">
         <input type="file" id="fileInput" accept=".html">
         <div class="drop-icon">&#128196;</div>
-        <div class="drop-label">&#25320;&#25287;&#25110; <strong>&#28857;&#20987;&#36873;&#25321;</strong> HTML &#25991;&#20214;</div>
+        <div class="drop-label">拖拽或 <strong>点击选择</strong> HTML 文件</div>
       </div>
       <div class="file-info" id="fileInfo">
         <span>OK</span>
@@ -119,7 +302,7 @@ header p{color:var(--text-dim);font-size:14px;margin-top:6px;font-weight:400;fon
     </div>
     <div class="card">
       <div class="step-num">// Step 02</div>
-      <h3>&#37197;&#32622;&#24212;&#29992;&#21830;&#24215;&#38142;&#25509;</h3>
+      <h3>配置应用商店链接</h3>
       <div class="url-row">
         <div class="url-label">Android</div>
         <input class="url-input" id="androidUrl" type="url" placeholder="https://play.google.com/store/apps/details?id=...">
@@ -128,30 +311,1711 @@ header p{color:var(--text-dim);font-size:14px;margin-top:6px;font-weight:400;fon
         <div class="url-label">iOS</div>
         <input class="url-input" id="iosUrl" type="url" placeholder="https://apps.apple.com/app/id...">
       </div>
-      <div class="hint" id="urlHint">&#19978;&#20256;&#25991;&#20214;&#21518;&#23558;&#33258;&#21160;&#26816;&#27979; Store URL</div>
+      <div class="hint" id="urlHint">上传文件后将自动检测 Store URL</div>
     </div>
     <div class="card card-full">
       <div class="step-num">// Step 03</div>
-      <h3 style="margin-bottom:16px">&#36873;&#25321;&#38656;&#35201;&#36866;&#37197;&#30340;&#28193;&#36947;</h3>
+      <h3 style="margin-bottom:16px">选择需要适配的渠道</h3>
       <div class="channels-grid" id="channelsGrid"></div>
     </div>
     <div class="gen-row">
       <button class="btn-gen" id="btnGen" disabled>
-        <div class="btn-inner"><span>&#9889;</span><span id="btnText">&#35831;&#20808;&#19978;&#20256;&#25991;&#20214;&#24182;&#36873;&#25321;&#28193;&#36947;</span></div>
+        <div class="btn-inner"><span>&#9889;</span><span id="btnText">请先上传文件并选择渠道</span></div>
       </button>
     </div>
   </div>
+
   <div class="log-panel" id="logPanel">
-    <div class="log-hdr"><div class="log-dot" id="logDot"></div><span id="logTitle">&#22788;&#29702;&#20013;...</span></div>
+    <div class="log-hdr"><div class="log-dot" id="logDot"></div><span id="logTitle">处理中...</span></div>
     <div class="log-body" id="logBody"></div>
   </div>
+
   <div class="results" id="results">
-    <div class="results-title">// &#36866;&#37197;&#23436;&#25104; &#183; &#28857;&#20987;&#21345;&#29255;&#19979;&#36733;</div>
+    <div class="results-title">// 适配完成 · 点击卡片下载</div>
     <div class="result-grid" id="resultGrid"></div>
-    <button class="btn-all" id="btnAll">&#128230; &#25171;&#21253;&#19979;&#36733;&#20840;&#37096;</button>
+    <button class="btn-all" id="btnAll">&#128230; 打包下载全部</button>
   </div>
+
 </div>
+</div>
+
 <script>
+// ══ Tab 切换 ══
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = id === 'tab-replacer' ? 0 : 1;
+  document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+}
+</script>
+
+<script>
+// ════════════════════════════════════════════════════
+//  资源替换工具 JS
+// ════════════════════════════════════════════════════
+
+    let originalHtml = "";
+    let currentHtml = "";
+    let fileName = "modified.html";
+    let images = []; // {idx, mime, src, originalSrc, hash, replaced}
+    let selectedIdx = -1;
+    let resolvedContext = {
+      jsUrl: '',
+      jsText: '',
+      zipBase64: '',
+      zipFiles: [], // [{name,text}]
+      dynamicResolved: false,
+      playableParams: null,   // decoded __PLAYABLE_PARAMETERS__ object
+      playableParamsB64: '',  // the original base64 string in currentHtml
+    };
+
+    const htmlDrop = document.getElementById('htmlDrop');
+    const htmlFile = document.getElementById('htmlFile');
+    const imgGrid = document.getElementById('imgGrid');
+    const imgStats = document.getElementById('imgStats');
+    const replaceBtn = document.getElementById('replaceBtn');
+    const clearImgBtn = document.getElementById('clearImgBtn');
+    const imgFile = document.getElementById('imgFile');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const fileInfo = document.getElementById('fileInfo');
+    const pickHtmlBtn = document.getElementById('pickHtmlBtn');
+    const logBox = document.getElementById('log');
+    const cfgStats = document.getElementById('cfgStats');
+    const androidUrl = document.getElementById('androidUrl');
+    const iosUrl = document.getElementById('iosUrl');
+    const applyCfgBtn = document.getElementById('applyCfgBtn');
+    const titleStats = document.getElementById('titleStats');
+    const oldTitleText = document.getElementById('oldTitleText');
+    const newTitleText = document.getElementById('newTitleText');
+    const applyTitleBtn = document.getElementById('applyTitleBtn');
+    const compressCheck = document.getElementById('compressCheck');
+    const compressColors = document.getElementById('compressColors');
+    const colorsLabel = document.getElementById('colorsLabel');
+    const compressQuality = document.getElementById('compressQuality');
+    const qualityLabel = document.getElementById('qualityLabel');
+    const compressMaxW = document.getElementById('compressMaxW');
+    let storeUiState = null;
+    compressColors.addEventListener('input', () => {
+      colorsLabel.textContent = compressColors.value;
+    });
+    compressQuality.addEventListener('input', () => {
+      qualityLabel.textContent = parseFloat(compressQuality.value).toFixed(2);
+    });
+
+    /**
+     * 类似 TinyPNG 的图片压缩
+     * PNG：用 UPNG.js 做色彩量化（24-bit → 8-bit 索引色），保留透明通道
+     * JPEG：用 Canvas toDataURL 调质量
+     * @param {string} dataUrl 原始 data URL
+     * @param {object} opts { colors: 256, quality: 0.7, maxW: 0 }
+     * @returns {Promise<{dataUrl:string, originalSize:number, compressedSize:number, method:string}>}
+     */
+    function compressImage(dataUrl, opts) {
+      const { colors = 256, quality = 0.7, maxW = 0 } = opts || {};
+      return new Promise((resolve, reject) => {
+        const imgEl = new Image();
+        imgEl.onload = () => {
+          let w = imgEl.naturalWidth, h = imgEl.naturalHeight;
+          if (maxW > 0 && w > maxW) {
+            h = Math.round(h * maxW / w);
+            w = maxW;
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(imgEl, 0, 0, w, h);
+
+          const origB64 = dataUrl.split(',')[1] || '';
+          const origPad = (origB64.match(/=+$/) || [''])[0].length;
+          const origSize = Math.floor(origB64.length * 3 / 4) - origPad;
+          const origMime = (dataUrl.match(/^data:(image\/[^;]+)/i) || [])[1] || 'image/png';
+          const isPNG = /png|webp/i.test(origMime);
+
+          let compressedDataUrl, method;
+
+          if (isPNG && typeof UPNG !== 'undefined') {
+            // PNG 量化压缩（类似 TinyPNG）
+            const rgba = ctx.getImageData(0, 0, w, h).data.buffer;
+            const pngBuf = UPNG.encode([rgba], w, h, colors);
+            // 转 base64 data URL
+            const bytes = new Uint8Array(pngBuf);
+            let binary = '';
+            for (let j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]);
+            compressedDataUrl = 'data:image/png;base64,' + btoa(binary);
+            method = `PNG 量化 ${colors} 色`;
+          } else {
+            // JPEG 压缩
+            const c2 = document.createElement('canvas');
+            c2.width = w; c2.height = h;
+            const x2 = c2.getContext('2d');
+            x2.fillStyle = '#fff';
+            x2.fillRect(0, 0, w, h);
+            x2.drawImage(canvas, 0, 0);
+            compressedDataUrl = c2.toDataURL('image/jpeg', quality);
+            method = `JPEG 质量 ${quality.toFixed(2)}`;
+          }
+
+          const compB64 = compressedDataUrl.split(',')[1] || '';
+          const compPad = (compB64.match(/=+$/) || [''])[0].length;
+          const compSize = Math.floor(compB64.length * 3 / 4) - compPad;
+          resolve({ dataUrl: compressedDataUrl, originalSize: origSize, compressedSize: compSize, method });
+        };
+        imgEl.onerror = () => reject(new Error('图片加载失败，无法压缩'));
+        imgEl.src = dataUrl;
+      });
+    }
+
+    const log = (msg) => {
+      const t = new Date().toLocaleTimeString();
+      logBox.value += `[${t}] ${msg}\n`;
+      logBox.scrollTop = logBox.scrollHeight;
+    };
+
+    log('版本：v2026-04-01 17:26');
+
+    const shortHash = (s) => {
+      let h = 0;
+      for (let i = 0; i < s.length; i++) h = ((h << 5) - h) + s.charCodeAt(i) | 0;
+      return (h >>> 0).toString(16).padStart(8, '0');
+    };
+
+    const formatSize = (bytes) => {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+    };
+
+    function wireDrop(dropEl, onFiles) {
+      ['dragenter','dragover'].forEach(ev => dropEl.addEventListener(ev, e => {
+        e.preventDefault(); e.stopPropagation(); dropEl.classList.add('drag');
+      }));
+      ['dragleave','drop'].forEach(ev => dropEl.addEventListener(ev, e => {
+        e.preventDefault(); e.stopPropagation(); dropEl.classList.remove('drag');
+      }));
+      dropEl.addEventListener('drop', e => {
+        const files = [...(e.dataTransfer?.files || [])];
+        if (files.length) onFiles(files);
+      });
+    }
+
+    // 已知 base64 图片签名（PNG/JPEG/WEBP/GIF）
+    const IMG_SIGS = ['iVBORw0KGgo', '/9j/', 'UklGR', 'R0lGODlh', 'R0lGODdh'];
+
+    // 动态检测混淆：尝试删除 base64 前 N 位中的每一个位置，看是否能匹配已知签名
+    // 返回 { obfuscated: bool, position: number }
+    //   obfuscated=false 表示已是干净图片或无法识别
+    //   position 为假字符被插入的索引（0-based）
+    function detectObfuscation(dataUrl) {
+      const commaIdx = dataUrl.indexOf(',');
+      if (commaIdx < 0) return { obfuscated: false, position: -1 };
+      const b64 = dataUrl.substring(commaIdx + 1);
+      // 已是正常签名 → 未混淆
+      for (const s of IMG_SIGS) { if (b64.startsWith(s)) return { obfuscated: false, position: -1 }; }
+      if (b64.length <= 2) return { obfuscated: false, position: -1 };
+      // 尝试删除 position 0~15 处的字符，看去掉后是否匹配签名
+      const maxPos = Math.min(15, b64.length - 1);
+      for (let pos = 0; pos <= maxPos; pos++) {
+        const stripped = b64.substring(0, pos) + b64.substring(pos + 1);
+        for (const s of IMG_SIGS) {
+          if (stripped.startsWith(s)) return { obfuscated: true, position: pos };
+        }
+      }
+      return { obfuscated: false, position: -1 };
+    }
+
+    function isObfuscatedDataUrl(dataUrl) {
+      return detectObfuscation(dataUrl).obfuscated;
+    }
+
+    // 去除混淆字符，恢复正常图片供预览
+    function deobfuscateDataUrl(dataUrl) {
+      const { obfuscated, position } = detectObfuscation(dataUrl);
+      if (!obfuscated) return dataUrl;
+      const commaIdx = dataUrl.indexOf(',');
+      const b64 = dataUrl.substring(commaIdx + 1);
+      const stripped = b64.substring(0, position) + b64.substring(position + 1);
+      return dataUrl.substring(0, commaIdx + 1) + stripped;
+    }
+
+    // 给干净的 data URL 加上混淆（在指定位置插入随机数字 1-9），用于替换时还原混淆
+    function obfuscateDataUrl(dataUrl, position = 1) {
+      const commaIdx = dataUrl.indexOf(',');
+      if (commaIdx < 0) return dataUrl;
+      const b64 = dataUrl.substring(commaIdx + 1);
+      if (b64.length < 2) return dataUrl;
+      const digit = String(Math.floor(Math.random() * 9) + 1); // 1-9
+      return dataUrl.substring(0, commaIdx + 1) + b64.substring(0, position) + digit + b64.substring(position);
+    }
+
+    function parseImagesFromText(text, source = 'html', fileName = '') {
+      // 兼容 data:image/png;base64 和 data:image\/png;base64（JS 字符串转义）
+      const normalized = String(text || '').replace(/\\\//g, '/');
+      const re = /data:image\/[a-zA-Z0-9.+-]+(?:;[^,\s"'<>]*)*;base64,[A-Za-z0-9+/=\s]+/g;
+      const matches = normalized.match(re) || [];
+      const uniq = [...new Set(matches)].filter(Boolean);
+
+      return uniq.map((src) => {
+        const m = src.match(/^data:(image\/[a-zA-Z0-9.+-]+)(?:;[^,]*)*;base64,/i);
+        const b64 = src.split(',')[1] || '';
+        const padding = (b64.match(/=+$/) || [''])[0].length;
+        const bytes = Math.max(0, Math.floor(b64.length * 3 / 4) - padding);
+        const displaySrc = deobfuscateDataUrl(src);
+        return {
+          mime: m ? m[1] : 'image/png',
+          src,
+          originalSrc: src,
+          displaySrc,
+          hash: shortHash(src),
+          bytes,
+          width: null,
+          height: null,
+          replaced: false,
+          source,
+          fileName,
+        };
+      });
+    }
+
+    function collectImagesFromAllSources() {
+      const out = parseImagesFromText(currentHtml, 'html', 'index.html');
+      if (resolvedContext.zipFiles?.length) {
+        for (const f of resolvedContext.zipFiles) {
+          if (f.binary) {
+            // ZIP 内二进制图片文件，直接构造图片对象
+            const b64 = f.b64 || '';
+            const padding = (b64.match(/=+$/) || [''])[0].length;
+            const byteLen = Math.max(0, Math.floor(b64.length * 3 / 4) - padding);
+            out.push({
+              mime: f.mime,
+              src: f.dataUrl,
+              originalSrc: f.dataUrl,
+              displaySrc: deobfuscateDataUrl(f.dataUrl),
+              hash: shortHash(f.dataUrl),
+              bytes: byteLen,
+              width: null, height: null,
+              replaced: false,
+              source: 'zip-binary',
+              fileName: f.name,
+            });
+          } else {
+            // ZIP 内文本文件，扫描 base64 data URI
+            const zipImgs = parseImagesFromText(f.text, 'zip', f.name);
+            out.push(...zipImgs);
+          }
+        }
+      }
+      // 扫描 __PLAYABLE_PARAMETERS__ 中的图片键
+      if (resolvedContext.playableParams) {
+        for (const [key, val] of Object.entries(resolvedContext.playableParams)) {
+          if (typeof val !== 'string' || !val.startsWith('data:image')) continue;
+          const m = val.match(/^data:(image\/[a-zA-Z0-9.+-]+)(?:;[^,]*)*;base64,/i);
+          const b64 = val.split(',')[1] || '';
+          const padding = (b64.match(/=+$/) || [''])[0].length;
+          const bytes = Math.max(0, Math.floor(b64.length * 3 / 4) - padding);
+          out.push({
+            mime: m ? m[1] : 'image/png',
+            src: val,
+            originalSrc: val,
+            displaySrc: val,
+            hash: shortHash(val),
+            bytes,
+            width: null, height: null,
+            replaced: false,
+            source: 'playable-params',
+            fileName: key,
+          });
+        }
+      }
+
+      out.forEach((img, i) => { img.idx = i; });
+      return out;
+    }
+
+    // 用 indexOf 定位 window.__zip 的值范围，避免正则在 MB 级字符串上卡死
+    function replaceZipInJs(jsText, newZipBase64) {
+      const anchor = 'window.__zip';
+      const idx = jsText.indexOf(anchor);
+      if (idx < 0) return null;
+      // 找到 = 后面的引号（可能是 " 或 \"）
+      let p = idx + anchor.length;
+      while (p < jsText.length && /[\s=]/.test(jsText[p])) p++;
+      // 检测引号形式
+      let escaped = false;
+      if (jsText[p] === '\\' && jsText[p + 1] === '"') { escaped = true; p += 2; }
+      else if (jsText[p] === '"' || jsText[p] === "'") { p += 1; }
+      else return null;
+      // 找到对应的结束引号
+      const startVal = p;
+      let endVal = -1;
+      if (escaped) {
+        endVal = jsText.indexOf('\\"', startVal);
+      } else {
+        const q = jsText[p - 1]; // 开引号
+        endVal = jsText.indexOf(q, startVal);
+      }
+      if (endVal < 0) return null;
+      // 替换值部分
+      const before = jsText.substring(0, startVal);
+      const after = jsText.substring(endVal);
+      return before + newZipBase64 + after;
+    }
+
+    function writeJsBackToHtml(jsText, opts = {}) {
+      const { label = '脚本' } = opts;
+      const safeJs = jsText.replace(/<\/script>/gi, '<\\/script>');
+      const inlined = `<script data-rc-inlined="1">\n${safeJs}\n<\/script>`;
+
+      if (resolvedContext.jsUrl) {
+        const srcRe = new RegExp(
+          `<script\\s+[^>]*src=["']${resolvedContext.jsUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["'][^>]*><\\/script>`,
+          'i'
+        );
+
+        const tryCurrent = currentHtml.replace(srcRe, inlined);
+        if (tryCurrent !== currentHtml) {
+          currentHtml = tryCurrent;
+          log(`ℹ️ 已将更新后的${label}写回当前 HTML`);
+          return true;
+        }
+
+        if (!resolvedContext.dynamicResolved) {
+          const tryOriginal = originalHtml.replace(srcRe, inlined);
+          if (tryOriginal !== originalHtml) {
+            currentHtml = tryOriginal;
+            log(`ℹ️ 已将更新后的${label}写回原始 shell HTML`);
+            return true;
+          }
+        }
+      }
+
+      const tag1 = '<script data-rc-inlined="1">';
+      const tag2 = '<\/script>';
+      const s = currentHtml.indexOf(tag1);
+      const e = s >= 0 ? currentHtml.indexOf(tag2, s) : -1;
+      if (s >= 0 && e >= 0) {
+        currentHtml = currentHtml.substring(0, s) + inlined + currentHtml.substring(e + tag2.length);
+        log(`ℹ️ 已更新现有内联${label}`);
+        return true;
+      }
+
+      return false;
+    }
+
+    async function rebuildZipInHtml() {
+      if (!resolvedContext.zipBase64 || typeof JSZip === 'undefined') return false;
+      try {
+        const clean = resolvedContext.zipBase64.replace(/\s+/g, '');
+        const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+        const zip = await JSZip.loadAsync(bytes.buffer);
+        for (const f of resolvedContext.zipFiles) {
+          if (f.binary) {
+            zip.file(f.name, f.b64, { base64: true });
+          } else {
+            zip.file(f.name, f.text);
+          }
+        }
+        log('ℹ️ 正在重建 ZIP...');
+        const newZipBase64 = await zip.generateAsync({ type: 'base64', compression: 'DEFLATE' });
+
+        let jsText = resolvedContext.jsText || '';
+        const replaced = replaceZipInJs(jsText, newZipBase64);
+        if (!replaced) {
+          log('❌ 无法在 JS 中定位 window.__zip 的值');
+          return false;
+        }
+        jsText = replaced;
+        resolvedContext.jsText = jsText;
+        resolvedContext.zipBase64 = newZipBase64;
+
+        // 把新 ZIP 写回 currentHtml
+        let zipUpdated = writeJsBackToHtml(jsText, { label: 'ZIP 启动脚本' });
+
+        // 方式3：currentHtml 本身含 window.__zip（如 Cocos obj.html）→ 直接替换
+        if (!zipUpdated && currentHtml.includes('window.__zip')) {
+          const htmlReplaced = replaceZipInJs(currentHtml, newZipBase64);
+          if (htmlReplaced) {
+            currentHtml = htmlReplaced;
+            zipUpdated = true;
+            log('ℹ️ 已直接更新 HTML 中的 window.__zip');
+          }
+        }
+
+        if (!zipUpdated) {
+          log('⚠️ ZIP 已重建，但无法写回 HTML（下载文件可能不含最新图片）');
+        }
+        log('✅ ZIP 重建完成');
+        return true;
+      } catch (e) {
+        log(`❌ ZIP 重建失败：${e?.message || 'unknown'}`);
+        return false;
+      }
+    }
+
+    // 用 split/join 做字符串替换（避免超长 base64 构建正则导致崩溃）
+    function strReplaceAll(haystack, needle, replacement) {
+      const parts = haystack.split(needle);
+      const hit = parts.length - 1;
+      return { result: hit > 0 ? parts.join(replacement) : haystack, hit };
+    }
+
+    // 返回 { hit, storedNewSrc }，storedNewSrc 是实际写入文本的 newSrc（可能已回混淆）
+    async function applyImageReplaceInSource(img, oldSrc, newSrc) {
+      if (img.source === 'html') {
+        const { result, hit } = strReplaceAll(currentHtml, oldSrc, newSrc);
+        if (hit > 0) currentHtml = result;
+        return { hit, storedNewSrc: newSrc };
+      }
+
+      if (img.source === 'zip') {
+        const f = resolvedContext.zipFiles?.find(zf => zf.name === img.fileName);
+        if (!f) { log(`⚠️ 未找到 ZIP 内文件：${img.fileName}`); return { hit: 0, storedNewSrc: newSrc }; }
+        let text = f.text;
+        let totalHit = 0;
+
+        // 如果原图是混淆的且新图是干净的，需要回混淆（在同一位置）
+        const oldDetect = detectObfuscation(oldSrc);
+        const needObfuscate = oldDetect.obfuscated && !detectObfuscation(newSrc).obfuscated;
+        const actualNewSrc = needObfuscate ? obfuscateDataUrl(newSrc, oldDetect.position) : newSrc;
+        if (needObfuscate) {
+          log(`🔒 已对新图片回混淆（position=${oldDetect.position} 插入假字符）`);
+        }
+
+        // 先尝试直接匹配
+        let r = strReplaceAll(text, oldSrc, actualNewSrc);
+        if (r.hit > 0) { text = r.result; totalHit += r.hit; }
+
+        // 再尝试 \/-转义形式（JS 字符串中常见）
+        if (totalHit === 0) {
+          const escapedOld = oldSrc.replace(/\//g, '\\/');
+          const escapedNew = actualNewSrc.replace(/\//g, '\\/');
+          r = strReplaceAll(text, escapedOld, escapedNew);
+          if (r.hit > 0) { text = r.result; totalHit += r.hit; }
+        }
+
+        if (totalHit > 0) {
+          f.text = text;
+          await rebuildZipInHtml();
+        }
+        return { hit: totalHit, storedNewSrc: actualNewSrc };
+      }
+
+      if (img.source === 'zip-binary') {
+        const f = resolvedContext.zipFiles?.find(zf => zf.name === img.fileName);
+        if (!f) { log(`⚠️ 未找到 ZIP 内文件：${img.fileName}`); return { hit: 0, storedNewSrc: newSrc }; }
+        const newB64 = newSrc.split(',')[1] || '';
+        if (!newB64) return { hit: 0, storedNewSrc: newSrc };
+        const newMime = (newSrc.match(/^data:(image\/[^;]+);base64,/i) || [, f.mime])[1];
+        f.b64 = newB64;
+        f.mime = newMime;
+        f.dataUrl = newSrc;
+        await rebuildZipInHtml();
+        return { hit: 1, storedNewSrc: newSrc };
+      }
+
+      if (img.source === 'playable-params') {
+        const key = img.fileName;
+        if (!resolvedContext.playableParams || !(key in resolvedContext.playableParams)) {
+          log(`⚠️ 未找到 PLAYABLE_PARAMETERS 中的键：${key}`);
+          return { hit: 0, storedNewSrc: newSrc };
+        }
+        // 更新对应键的值
+        resolvedContext.playableParams[key] = newSrc;
+        // 重新序列化并 base64 编码（UTF-8）
+        const newJson = JSON.stringify(resolvedContext.playableParams);
+        const encoded = new TextEncoder().encode(newJson);
+        let binary = '';
+        for (let i = 0; i < encoded.length; i++) binary += String.fromCharCode(encoded[i]);
+        const newB64 = btoa(binary);
+        // 在 currentHtml 中替换旧 base64 字符串
+        const { result, hit } = strReplaceAll(currentHtml, resolvedContext.playableParamsB64, newB64);
+        if (hit > 0) {
+          currentHtml = result;
+          resolvedContext.playableParamsB64 = newB64;
+        }
+        return { hit: hit > 0 ? 1 : 0, storedNewSrc: newSrc };
+      }
+
+      return { hit: 0, storedNewSrc: newSrc };
+    }
+
+    function summarizeImageSources() {
+      const html = images.filter(i => i.source === 'html').length;
+      const zip = images.filter(i => i.source === 'zip').length;
+      const zipBin = images.filter(i => i.source === 'zip-binary').length;
+      const pp = images.filter(i => i.source === 'playable-params').length;
+      return { html, zip, zipBin, pp };
+    }
+
+    function renderGrid() {
+      imgGrid.innerHTML = '';
+      images.forEach((img, i) => {
+        const card = document.createElement('div');
+        card.className = 'card' + (selectedIdx === i ? ' sel' : '');
+        card.dataset.idx = i;
+        card.innerHTML = `
+          <img class="thumb" src="${img.displaySrc || img.src}" />
+          <div class="meta">
+            <span class="tag">#${i + 1}</span>
+            <span class="tag">${img.mime}</span>
+            <span class="tag">${formatSize(img.bytes || 0)}</span>
+            <span class="tag dimtag">${img.width && img.height ? `${img.width}×${img.height}` : '尺寸读取中'}</span>
+            ${(img.source === 'zip' || img.source === 'zip-binary') ? `<span class="tag warn" title="${img.fileName}">ZIP:${img.fileName.split('/').pop()}</span>` : ''}
+            ${img.source === 'playable-params' ? `<span class="tag warn" title="${img.fileName}">PARAMS:${img.fileName}</span>` : ''}
+            ${img.replaced ? '<span class="ok">已替换</span>' : ''}<br>
+            hash: ${img.hash}
+          </div>
+          <div class="actions" style="margin-top:6px; display:flex; gap:6px;">
+            <button class="clearBtn" style="background:#a03030; font-size:12px;">清除</button>
+            <button class="undoBtn" ${img.replaced ? '' : 'disabled'}>撤销替换</button>
+          </div>
+        `;
+
+        card.addEventListener('click', () => {
+          selectedIdx = i;
+          renderGrid();
+        });
+
+        wireDrop(card, files => {
+          const f = files[0];
+          if (!f || !f.type.startsWith('image/')) return;
+          replaceImageAt(i, f);
+        });
+
+        const thumb = card.querySelector('.thumb');
+        thumb.addEventListener('load', () => {
+          const w = thumb.naturalWidth || null;
+          const h = thumb.naturalHeight || null;
+          if (w && h) {
+            images[i].width = w;
+            images[i].height = h;
+            const dim = card.querySelector('.dimtag');
+            if (dim) dim.textContent = `${w}×${h}`;
+          }
+        });
+        thumb.addEventListener('error', () => {
+          const dim = card.querySelector('.dimtag');
+          if (dim) dim.innerHTML = '<span style="color:var(--warn)">加载失败</span>';
+          log(`⚠️ 图片 #${i+1}（${img.fileName || 'html'}）预览加载失败，src 前60字符: ${(img.displaySrc||img.src||'').substring(0,60)}...`);
+        });
+
+        const clearBtn = card.querySelector('.clearBtn');
+        clearBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          clearImageAt(i);
+        });
+
+        const undoBtn = card.querySelector('.undoBtn');
+        undoBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          undoReplaceAt(i);
+        });
+
+        imgGrid.appendChild(card);
+      });
+
+      const by = summarizeImageSources();
+      imgStats.textContent = `共 ${images.length} 张（base64/html:${by.html}${by.zip ? `，zip:${by.zip}` : ''}${by.pp ? `，params:${by.pp}` : ''}）`;
+      replaceBtn.disabled = selectedIdx < 0;
+      clearImgBtn.disabled = selectedIdx < 0;
+      downloadBtn.disabled = !currentHtml;
+      document.getElementById('toAdapterBtn').disabled = !currentHtml;
+    }
+
+    function replaceImageAt(i, file) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        let dataUrl = String(reader.result || '');
+        if (!dataUrl.startsWith('data:image/')) {
+          log(`❌ 图片 #${i + 1} 替换失败：不是有效图片`);
+          return;
+        }
+
+        // 压缩（类似 TinyPNG 的色彩量化）
+        if (compressCheck.checked) {
+          try {
+            const opts = {
+              colors: parseInt(compressColors.value) || 256,
+              quality: parseFloat(compressQuality.value) || 0.7,
+              maxW: parseInt(compressMaxW.value) || 0
+            };
+            const result = await compressImage(dataUrl, opts);
+            const pct = ((1 - result.compressedSize / result.originalSize) * 100).toFixed(0);
+            log(`🗜️ 压缩：${formatSize(result.originalSize)} → ${formatSize(result.compressedSize)}（${pct}% 减小，${result.method}${opts.maxW > 0 ? `，最大宽度 ${opts.maxW}px` : ''}）`);
+            if (result.compressedSize < result.originalSize) {
+              dataUrl = result.dataUrl;
+            } else {
+              log(`ℹ️ 压缩后反而更大，使用原图`);
+            }
+          } catch (err) {
+            log(`⚠️ 压缩失败（${err.message}），使用原图`);
+          }
+        }
+
+        const img = images[i];
+        const oldSrc = img.src;
+        const newSrc = dataUrl;
+
+        const { hit: replacedCount, storedNewSrc } = await applyImageReplaceInSource(img, oldSrc, newSrc);
+        if (replacedCount === 0) {
+          log(`⚠️ 图片 #${i + 1} 未找到可替换目标`);
+          return;
+        }
+
+        // img.src 保存实际写入文本的版本（可能已回混淆），以便后续撤销/再替换
+        images[i].src = storedNewSrc;
+        images[i].displaySrc = deobfuscateDataUrl(storedNewSrc);
+        images[i].mime = (newSrc.match(/^data:(image\/[^;]+);base64,/i) || [,'image/png'])[1];
+        images[i].hash = shortHash(storedNewSrc);
+        const b64n = newSrc.split(',')[1] || '';
+        const padn = (b64n.match(/=+$/) || [''])[0].length;
+        images[i].bytes = Math.max(0, Math.floor(b64n.length * 3 / 4) - padn);
+        images[i].width = null;
+        images[i].height = null;
+        images[i].replaced = (images[i].src !== images[i].originalSrc);
+
+        log(`✅ 已替换图片 #${i + 1}（命中 ${replacedCount} 处，来源：${img.source}${img.fileName ? '/' + img.fileName : ''}）`);
+        renderGrid();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function undoReplaceAt(i) {
+      if (!images[i] || !images[i].originalSrc || images[i].src === images[i].originalSrc) return;
+      const img = images[i];
+      const oldSrc = img.src;
+      const newSrc = img.originalSrc;
+
+      applyImageReplaceInSource(img, oldSrc, newSrc).then(({ hit: replacedCount, storedNewSrc }) => {
+        if (replacedCount === 0) {
+          log(`⚠️ 图片 #${i + 1} 撤销失败：未命中当前内容`);
+          return;
+        }
+        images[i].src = storedNewSrc;
+        images[i].displaySrc = deobfuscateDataUrl(storedNewSrc);
+        images[i].mime = (storedNewSrc.match(/^data:(image\/[^;]+);base64,/i) || [,'image/png'])[1];
+        images[i].hash = shortHash(storedNewSrc);
+        const b64o = storedNewSrc.split(',')[1] || '';
+        const pado = (b64o.match(/=+$/) || [''])[0].length;
+        images[i].bytes = Math.max(0, Math.floor(b64o.length * 3 / 4) - pado);
+        images[i].width = null;
+        images[i].height = null;
+        images[i].replaced = false;
+        log(`↩️ 已撤销图片 #${i + 1}（命中 ${replacedCount} 处）`);
+        renderGrid();
+      });
+    }
+
+    function stripTitleTags(html) {
+      return html.replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, '');
+    }
+
+    function extractZipBase64FromJs(jsText) {
+      // 常见形态：window.__zip = "..."; 或 window.__zip = "...";
+      // 有些脚本里引号被转义，且内容包含 \/
+      let m = jsText.match(/window\.__zip\s*=\s*(["'`])([\s\S]*?)\1\s*;/i);
+      if (m && m[2]) {
+        return m[2]
+          .replace(/\\\//g, '/')
+          .replace(/\\n/g, '')
+          .replace(/\\r/g, '')
+          .replace(/\\t/g, '');
+      }
+
+      // 兜底：匹配转义引号 window.__zip = \"...\";
+      m = jsText.match(/window\.__zip\s*=\s*\\"([\s\S]*?)\\"\s*;/i);
+      if (m && m[1]) {
+        return m[1]
+          .replace(/\\\//g, '/')
+          .replace(/\\n/g, '')
+          .replace(/\\r/g, '')
+          .replace(/\\t/g, '')
+          .replace(/\\"/g, '"');
+      }
+
+      return '';
+    }
+
+    const IMG_MIME = { png:'image/png', jpg:'image/jpeg', jpeg:'image/jpeg', gif:'image/gif', webp:'image/webp', bmp:'image/bmp', svg:'image/svg+xml' };
+
+    async function tryReadZipFiles(zipBase64) {
+      if (!zipBase64 || typeof JSZip === 'undefined') return [];
+      try {
+        const clean = zipBase64.replace(/\s+/g, '');
+        const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+        const zip = await JSZip.loadAsync(bytes.buffer);
+        const out = [];
+        const names = Object.keys(zip.files || {});
+        for (const name of names) {
+          const f = zip.files[name];
+          if (!f || f.dir) continue;
+          const ext = name.split('.').pop().toLowerCase();
+          const mime = IMG_MIME[ext];
+          if (/\.(html?|js|json|txt|xml|css)$/i.test(name)) {
+            const text = await f.async('string');
+            out.push({ name, text, binary: false });
+          } else if (mime) {
+            // Cocos 打包的 .png 文件可能实际是 data URI 文本，先尝试文本读取
+            let treated = false;
+            try {
+              const peek = await f.async('string');
+              if (peek && peek.trimStart().startsWith('data:image')) {
+                // 实际上是文本 data URI，作为文本资源处理
+                out.push({ name, text: peek, binary: false });
+                log(`ℹ️ ZIP 内 ${name} 实际为 data URI 文本（${(peek.length/1024).toFixed(0)} KB）`);
+                treated = true;
+              }
+            } catch (_) { /* 非文本，继续走二进制 */ }
+            if (!treated) {
+              const b64 = await f.async('base64');
+              out.push({ name, text: null, binary: true, b64, mime, dataUrl: `data:${mime};base64,${b64}` });
+            }
+          } else if (!name.includes('.') || /\.(bin|mem|dat)$/i.test(name)) {
+            // 无扩展名或二进制数据文件，尝试当文本读取（如 Cocos __res 打包资源）
+            try {
+              const text = await f.async('string');
+              if (text && text.includes('data:image')) {
+                out.push({ name, text, binary: false });
+                log(`ℹ️ ZIP 内发现资源包 ${name}（${(text.length/1024).toFixed(0)} KB，含 data:image）`);
+              }
+            } catch (err) {
+              log(`⚠️ ZIP 内文件 ${name} 读取失败：${err?.message || 'unknown'}`);
+            }
+          }
+        }
+        return out;
+      } catch (e) {
+        log(`⚠️ ZIP 解析失败：${e?.message || 'unknown'}`);
+        return [];
+      }
+    }
+
+    // 从 HTML 中找到 __PLAYABLE_PARAMETERS__ 的 atob base64 块并解码
+    function extractPlayableParamsFromHtml(html) {
+      // 匹配 Uint8Array.from(atob("BASE64"), ...) 或 atob("BASE64") 两种写法
+      const patterns = [
+        /Uint8Array\.from\(atob\("([A-Za-z0-9+/=]+)"\)/,
+        /new\s+TextDecoder[^)]+\)\s*\.decode\(Uint8Array\.from\(atob\("([A-Za-z0-9+/=]+)"\)/,
+      ];
+      for (const re of patterns) {
+        const m = html.match(re);
+        if (!m) continue;
+        try {
+          const bytes = Uint8Array.from(atob(m[1]), c => c.charCodeAt(0));
+          const decoded = new TextDecoder('utf-8').decode(bytes);
+          const params = JSON.parse(decoded);
+          // 确认里面确实有图片键才算命中
+          const hasImg = Object.values(params).some(v => typeof v === 'string' && v.startsWith('data:image'));
+          if (hasImg) return { params, b64: m[1] };
+        } catch (_) { /* 继续下一个 */ }
+      }
+      return null;
+    }
+
+    function tryExtractInlineRenderedHtml(html) {
+      const anchor = 'al_renderHtml(';
+      let from = 0;
+      let parseError = '';
+
+      while (from < html.length) {
+        const start = html.indexOf(anchor, from);
+        if (start < 0) break;
+
+        let p = start + anchor.length;
+        let level = 1;
+        let inStr = false;
+        let esc = false;
+        let quote = '';
+        while (p < html.length && level > 0) {
+          const ch = html[p];
+          if (inStr) {
+            if (esc) esc = false;
+            else if (ch === '\\') esc = true;
+            else if (ch === quote) inStr = false;
+          } else {
+            if (ch === '"' || ch === "'") { inStr = true; quote = ch; }
+            else if (ch === '(') level++;
+            else if (ch === ')') level--;
+          }
+          p++;
+        }
+        if (level !== 0) {
+          parseError = 'inline-al_renderHtml-unbalanced';
+          break;
+        }
+
+        const objText = html.slice(start + anchor.length, p - 1).trim();
+        from = p;
+
+        // 跳过函数定义 al_renderHtml(obj) 这类非 JSON 调用
+        if (!objText.startsWith('{')) continue;
+
+        try {
+          const obj = JSON.parse(objText);
+          if (obj && obj.html) {
+            return { html: String(obj.html), resolved: true, reason: 'inline-al_renderHtml' };
+          }
+        } catch (e) {
+          parseError = `inline-json-parse-failed-${e?.message || 'unknown'}`;
+        }
+      }
+
+      return { html, resolved: false, reason: parseError || 'no-inline-al_renderHtml' };
+    }
+
+    function resolveInlineRenderedHtmlRecursive(html, maxDepth = 3) {
+      let current = html;
+      for (let depth = 0; depth < maxDepth; depth++) {
+        const res = tryExtractInlineRenderedHtml(current);
+        if (!res.resolved) {
+          return { html: current, resolved: depth > 0, reason: depth > 0 ? 'inline-recursive-ok' : res.reason };
+        }
+        current = res.html;
+      }
+      return { html: current, resolved: true, reason: 'inline-recursive-max-depth' };
+    }
+
+    async function tryResolveDynamicHtml(html) {
+      // 处理这类模板：页面只含 al_renderHtml + 外链 js
+      // 外链脚本标签（script src）里通常会有 al_renderHtml({"html":"..."}) 或 window.__zip
+      const srcMatch = html.match(/<script\s+[^>]*src=["']([^"']+)["'][^>]*><\/script>/i);
+      if (!srcMatch) return { html, resolved: false, reason: 'no-script-src' };
+      const jsUrl = srcMatch[1];
+      try {
+        const res = await fetch(jsUrl);
+        if (!res.ok) return { html, resolved: false, reason: `fetch-failed-${res.status}` };
+        const js = await res.text();
+
+        resolvedContext.jsUrl = jsUrl;
+        resolvedContext.jsText = js;
+        resolvedContext.zipBase64 = extractZipBase64FromJs(js);
+        resolvedContext.zipFiles = await tryReadZipFiles(resolvedContext.zipBase64);
+        if (resolvedContext.zipBase64) {
+          log(`ℹ️ 检测到 window.__zip（已解析文本文件 ${resolvedContext.zipFiles.length} 个）`);
+        }
+
+        const i = js.indexOf('al_renderHtml(');
+        if (i < 0) return { html, resolved: false, reason: 'no-al_renderHtml' };
+
+        let p = i + 'al_renderHtml('.length;
+        let level = 1;
+        let inStr = false;
+        let esc = false;
+        let quote = '';
+        while (p < js.length && level > 0) {
+          const ch = js[p];
+          if (inStr) {
+            if (esc) esc = false;
+            else if (ch === '\\') esc = true;
+            else if (ch === quote) inStr = false;
+          } else {
+            if (ch === '"' || ch === "'") { inStr = true; quote = ch; }
+            else if (ch === '(') level++;
+            else if (ch === ')') level--;
+          }
+          p++;
+        }
+        const objText = js.slice(i + 'al_renderHtml('.length, p - 1);
+        const obj = JSON.parse(objText);
+        if (obj && obj.html) {
+          const resolvedHtml = String(obj.html);
+          // 尝试从解析后的 HTML 中提取 __PLAYABLE_PARAMETERS__
+          const pp = extractPlayableParamsFromHtml(resolvedHtml);
+          if (pp) {
+            resolvedContext.playableParams = pp.params;
+            resolvedContext.playableParamsB64 = pp.b64;
+            const imgKeys = Object.keys(pp.params).filter(k => typeof pp.params[k] === 'string' && pp.params[k].startsWith('data:image'));
+            log(`ℹ️ 检测到 __PLAYABLE_PARAMETERS__（${Object.keys(pp.params).length} 个参数，含图片键：${imgKeys.join(', ')}）`);
+          }
+          return { html: resolvedHtml, resolved: true, reason: 'ok' };
+        }
+        return { html, resolved: false, reason: 'obj-no-html' };
+      } catch (e) {
+        return { html, resolved: false, reason: `exception-${e?.message || 'unknown'}` };
+      }
+    }
+
+    function detectPlayableParamsStoreLinks() {
+      const params = resolvedContext.playableParams;
+      if (!params) return null;
+      const android = params.storeLink_android || '';
+      const ios = params.storeLink_ios || '';
+      // 用 key 是否存在来判断，而不是值是否非空：
+      // 删除后 key 仍在 params 里（值为 ''），此时不能 return null，
+      // 否则会 fall-through 到 detectStoreLinksFallback 从旧 jsText 里找回原始 URL
+      if (!('storeLink_android' in params) && !('storeLink_ios' in params)) return null;
+      return { type: 'playable-params', android, ios };
+    }
+
+    function detectPlayableConfig(html) {
+      const re = /window\.__PLAYABLE_CONFIG__\s*=\s*(\{[\s\S]*?\})\s*;/m;
+      const m = html.match(re);
+      if (!m) return null;
+      try {
+        return { raw: m[0], obj: JSON.parse(m[1]) };
+      } catch {
+        return null;
+      }
+    }
+
+    function findFirstStoreLinks(text) {
+      const androidRe = /https?:\/\/play\.google\.com\/store\/apps\/details\?id=[^\s"'<>]+/ig;
+      const iosRe = /https?:\/\/apps\.apple\.com\/[^\s"'<>]+/ig;
+      const androidMatch = text.match(androidRe) || [];
+      const iosMatch = text.match(iosRe) || [];
+      return {
+        android: androidMatch[0] || '',
+        ios: iosMatch[0] || ''
+      };
+    }
+
+    function replaceStoreUrls(text, platform, oldUrl, newUrl) {
+      if (!text) return { text, hit: 0 };
+      const exact = typeof oldUrl === 'string' ? oldUrl.trim() : '';
+      const next = typeof newUrl === 'string' ? newUrl : '';
+
+      if (!next && platform === 'android') {
+        const re = /https?:\/\/play\.google\.com\/store\/apps\/details\?id=[^\s"'<>]+/ig;
+        const matches = text.match(re) || [];
+        return { text: matches.length ? text.replace(re, '') : text, hit: matches.length };
+      }
+      if (!next && platform === 'ios') {
+        const re = /https?:\/\/apps\.apple\.com\/[^\s"'<>]+/ig;
+        const matches = text.match(re) || [];
+        return { text: matches.length ? text.replace(re, '') : text, hit: matches.length };
+      }
+      if (!exact || exact === next) return { text, hit: 0 };
+      const safeOld = exact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(safeOld, 'g');
+      const hit = (text.match(re) || []).length;
+      return { text: text.replace(re, next), hit };
+    }
+
+    function detectStoreLinksFallback(html) {
+      // 1) 直接在当前 HTML 里找
+      const h = findFirstStoreLinks(html);
+      if (h.android || h.ios) {
+        return {
+          type: 'fallback',
+          source: 'html',
+          android: h.android,
+          ios: h.ios,
+        };
+      }
+
+      // 2) 在已抓取的外链 JS 里找
+      if (resolvedContext.jsText) {
+        const j = findFirstStoreLinks(resolvedContext.jsText);
+        if (j.android || j.ios) {
+          return {
+            type: 'fallback',
+            source: 'js',
+            android: j.android,
+            ios: j.ios,
+          };
+        }
+      }
+
+      // 3) 在 __zip 解包内容里找
+      if (resolvedContext.zipFiles?.length) {
+        for (const f of resolvedContext.zipFiles) {
+          const z = findFirstStoreLinks(f.text || '');
+          if (z.android || z.ios) {
+            return {
+              type: 'fallback',
+              source: 'zip',
+              fileName: f.name,
+              android: z.android,
+              ios: z.ios,
+            };
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function detectStoreLinks(html, opts = {}) {
+      const { allowFallback = true } = opts;
+      const cfg = detectPlayableConfig(html);
+      if (cfg) {
+        return {
+          type: 'config',
+          raw: cfg.raw,
+          obj: cfg.obj,
+          android: cfg.obj.android_url || '',
+          ios: cfg.obj.ios_url || '',
+        };
+      }
+      const pp = detectPlayableParamsStoreLinks();
+      if (pp) return pp;
+      return allowFallback ? detectStoreLinksFallback(html) : null;
+    }
+
+    function detectTitleText(html) {
+      const m = html.match(/<div\s+[^>]*class=["'][^"']*\btitle\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
+      if (!m) return null;
+      const plain = m[1].replace(/<[^>]+>/g, '').trim();
+      return plain || null;
+    }
+
+    function renderTitleConfig() {
+      const title = detectTitleText(currentHtml);
+      if (!title) {
+        titleStats.textContent = '未检测到 .title 文本';
+        oldTitleText.value = '';
+        oldTitleText.placeholder = '未检测到';
+        return;
+      }
+      oldTitleText.value = title;
+      if (!newTitleText.value.trim()) {
+        newTitleText.value = title;
+      }
+      titleStats.textContent = `已检测到 .title 文本：${title}`;
+    }
+
+    function applyTitleReplace() {
+      const oldText = oldTitleText.value.trim();
+      const nextText = newTitleText.value.trim();
+      if (!oldText) {
+        log('⚠️ 未检测到可替换的 .title 文本');
+        return;
+      }
+      if (!nextText) {
+        log('⚠️ 新标题不能为空');
+        return;
+      }
+      if (oldText === nextText) {
+        log('ℹ️ 标题未变化，无需替换');
+        return;
+      }
+      const safeOld = oldText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(safeOld, 'g');
+      const count = (currentHtml.match(re) || []).length;
+      currentHtml = currentHtml.replace(re, nextText);
+      log(`✅ 已替换标题文本：${oldText} -> ${nextText}（全局命中 ${count} 处）`);
+      renderTitleConfig();
+    }
+
+    function renderPlayableConfig() {
+      const found = storeUiState || detectStoreLinks(currentHtml, { allowFallback: true });
+      if (!found) {
+        cfgStats.textContent = '未检测到可替换商店链接';
+        androidUrl.value = '';
+        iosUrl.value = '';
+        androidUrl.placeholder = '未检测到';
+        iosUrl.placeholder = '未检测到';
+        return;
+      }
+
+      if (found.type === 'config') {
+        cfgStats.textContent = '已检测到 __PLAYABLE_CONFIG__（可替换商店链接）';
+      } else if (found.type === 'playable-params') {
+        cfgStats.textContent = '已检测到 PLAYABLE_PARAMETERS（可替换商店链接）';
+      } else {
+        const srcLabel = found.source === 'zip' ? `ZIP(${found.fileName || 'unknown'})` : (found.source || 'html');
+        cfgStats.textContent = `未检测到 __PLAYABLE_CONFIG__，已启用 URL 兜底识别（来源：${srcLabel}）`;
+      }
+
+      androidUrl.value = found.android || '';
+      iosUrl.value = found.ios || '';
+    }
+
+
+    function isEasybrainPlayable(html) {
+      return /openStoreUrl\(window\.CURRENT_URL\)/i.test(html)
+        || /window\.resMap\s*=\s*\{/i.test(html)
+        || /GameController/i.test(html);
+    }
+
+    function buildStoreInjectScript(nextAndroid, nextIos) {
+      return `
+<script data-rc-store-override="1">
+(function(){
+  var A = ${JSON.stringify(nextAndroid || '')};
+  var I = ${JSON.stringify(nextIos || '')};
+  function pickFinalUrl(fallbackUrl) {
+    return (I && /iPad|iPhone|iPod/.test(navigator.userAgent || "")) ? I : (A || fallbackUrl || '');
+  }
+  function applyStoreLinks(){
+    window.super_html = window.super_html || {};
+    if (A) {
+      window.super_html.android_url = A;
+      window.super_html.goole_play_url = A;
+      window.super_html.google_play_url = A;
+      window.super_html.google_play_cpp_url = A;
+    } else {
+      delete window.super_html.android_url;
+      delete window.super_html.goole_play_url;
+      delete window.super_html.google_play_url;
+      delete window.super_html.google_play_cpp_url;
+    }
+    if (I) {
+      window.super_html.ios_url = I;
+      window.super_html.appstore_url = I;
+      window.super_html.app_store_url = I;
+      window.super_html.app_store_cpp_url = I;
+    } else {
+      delete window.super_html.ios_url;
+      delete window.super_html.appstore_url;
+      delete window.super_html.app_store_url;
+      delete window.super_html.app_store_cpp_url;
+    }
+    var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || "");
+    if (I && isIOS) {
+      window.CURRENT_URL = I;
+    } else if (A) {
+      window.CURRENT_URL = A;
+    } else {
+      try { delete window.CURRENT_URL; } catch (_) { window.CURRENT_URL = ''; }
+    }
+    var cfg = Object.assign({}, window.__PLAYABLE_CONFIG__ || {});
+    if (A) cfg.android_url = A; else delete cfg.android_url;
+    if (I) cfg.ios_url = I; else delete cfg.ios_url;
+    window.__PLAYABLE_CONFIG__ = cfg;
+    window.openStoreUrl = function(url){
+      var finalUrl = pickFinalUrl(url);
+      if (!finalUrl) return;
+      if (typeof mraid !== "undefined") { mraid.open(finalUrl); }
+      else { window.open(finalUrl, '_blank'); }
+    };
+    window.super_html.download = function(n){
+      var finalUrl = pickFinalUrl('');
+      if (!finalUrl) return;
+      if (typeof mraid !== "undefined") { mraid.open(finalUrl); }
+      else { window.open(finalUrl, '_blank'); }
+    };
+  }
+  applyStoreLinks();
+  var t = setInterval(applyStoreLinks, 500);
+  setTimeout(function(){ clearInterval(t); }, 30000);
+  window.addEventListener('load', applyStoreLinks);
+})();
+<\/script>
+`;
+    }
+
+    function injectStoreOverride(nextAndroid, nextIos) {
+      currentHtml = currentHtml.replace(/<script\b[^>]*data-rc-store-override="1"[^>]*>[\s\S]*?<\/script>\s*/gi, '');
+      const inject = buildStoreInjectScript(nextAndroid, nextIos);
+      if (/<\/head>/i.test(currentHtml)) {
+        currentHtml = currentHtml.replace(/<\/head>/i, `${inject}</head>`);
+      } else if (/<body[^>]*>/i.test(currentHtml)) {
+        currentHtml = currentHtml.replace(/<body[^>]*>/i, (m) => `${m}${inject}`);
+      } else {
+        currentHtml = inject + currentHtml;
+      }
+    }
+
+    function buildFileModeCompatScript() {
+      return `
+<script data-rc-file-compat="1">
+(function(){
+  if (location.protocol !== 'file:') return;
+
+  function localHref(url, base) {
+    if (typeof url !== 'string' || !url) return null;
+    if (/^(?:https?:|data:|blob:|javascript:|mailto:|tel:)/i.test(url)) return null;
+    if (/^file:/i.test(url)) return url;
+    if (typeof base === 'string' && /^(?:file:|about:)/i.test(base)) {
+      return url.replace(/^\\.\\//, '').replace(/^\\//, '');
+    }
+    return null;
+  }
+
+  function wrapResolver(fn) {
+    return function(url, base) {
+      const local = localHref(url, base);
+      if (local) {
+        return { href: local, toString: function(){ return local; } };
+      }
+      try {
+        return fn.apply(this, arguments);
+      } catch (err) {
+        const fallback = localHref(url, base);
+        if (fallback) {
+          return { href: fallback, toString: function(){ return fallback; } };
+        }
+        throw err;
+      }
+    };
+  }
+
+  if (typeof window._my === 'function') {
+    window._my = wrapResolver(window._my);
+  } else {
+    Object.defineProperty(window, '_my', {
+      configurable: true,
+      set: function(v) {
+        Object.defineProperty(window, '_my', {
+          configurable: true,
+          writable: true,
+          value: typeof v === 'function' ? wrapResolver(v) : v
+        });
+      }
+    });
+  }
+})();
+<\/script>
+`;
+    }
+
+    function injectFileModeCompat() {
+      if (!currentHtml || currentHtml.includes('data-rc-file-compat="1"')) return;
+      const inject = buildFileModeCompatScript();
+      if (/<\/head>/i.test(currentHtml)) {
+        currentHtml = currentHtml.replace(/<\/head>/i, `${inject}</head>`);
+      } else if (/<body[^>]*>/i.test(currentHtml)) {
+        currentHtml = currentHtml.replace(/<body[^>]*>/i, (m) => `${m}${inject}`);
+      } else {
+        currentHtml = inject + currentHtml;
+      }
+    }
+
+    function buildRuntimeDebugMuteScript() {
+      return `
+<script data-rc-log-mute="1">
+(function(){
+  var blocked = ['download', 'game end', 'send game end to super_html', '[super-html]'];
+
+  function textOf(args) {
+    try {
+      return Array.prototype.map.call(args || [], function(item) {
+        if (typeof item === 'string') return item;
+        if (item == null) return '';
+        try { return JSON.stringify(item); } catch (_) { return String(item); }
+      }).join(' ');
+    } catch (_) {
+      return '';
+    }
+  }
+
+  function shouldMute(args) {
+    var text = textOf(args);
+    if (!text) return false;
+    for (var i = 0; i < blocked.length; i++) {
+      if (text.indexOf(blocked[i]) !== -1) return true;
+    }
+    return false;
+  }
+
+  function r_r_patchConsoleMethod(name) {
+    var c = window.console;
+    if (!c || typeof c[name] !== 'function') return;
+    var fn = c[name];
+    if (fn.__rcMuted) return;
+    var wrapped = function() {
+      if (shouldMute(arguments)) return;
+      return fn.apply(this, arguments);
+    };
+    wrapped.__rcMuted = true;
+    c[name] = wrapped;
+  }
+
+  function applyBridgeMute() {
+    window.super_log = function(){};
+    window.super_check_channel = function(channel){ return !!channel; };
+    window.super_html = window.super_html || {};
+    window.super_html.game_end = function(){};
+  }
+
+  r_patchConsoleMethod('log');
+  r_patchConsoleMethod('info');
+  r_patchConsoleMethod('debug');
+  applyBridgeMute();
+
+  var t = setInterval(applyBridgeMute, 500);
+  setTimeout(function(){ clearInterval(t); }, 30000);
+  window.addEventListener('load', applyBridgeMute);
+})();
+<\/script>
+`;
+    }
+
+    function injectRuntimeDebugMute() {
+      currentHtml = currentHtml.replace(/<script\b[^>]*data-rc-log-mute="1"[^>]*>[\s\S]*?<\/script>\s*/gi, '');
+      const inject = buildRuntimeDebugMuteScript();
+      if (/<\/head>/i.test(currentHtml)) {
+        currentHtml = currentHtml.replace(/<\/head>/i, `${inject}</head>`);
+      } else if (/<body[^>]*>/i.test(currentHtml)) {
+        currentHtml = currentHtml.replace(/<body[^>]*>/i, (m) => `${m}${inject}`);
+      } else {
+        currentHtml = inject + currentHtml;
+      }
+    }
+
+    function stripDebugConsoleLogs(html) {
+      let out = String(html || '');
+      out = out.replace(/,console\.log\('解包资源 key:',\s*g\),console\.log\('解包资源内容:',\s*h\)/g, '');
+      out = out.replace(/console\.log\('解包资源 key:',\s*g\);?/g, '');
+      out = out.replace(/console\.log\('解包资源内容:',\s*h\);?/g, '');
+      out = out.replace(/super_log\(([^()]|\([^()]*\))*\),/g, 'void 0,');
+      out = out.replace(/,super_log\(([^()]|\([^()]*\))*\)/g, '');
+      out = out.replace(/super_log\(([^()]|\([^()]*\))*\);/g, 'void 0;');
+      out = out.replace(/window\[[A-Za-z0-9_()]+\]=function\([A-Za-z0-9_]+\)\{const [A-Za-z0-9_]+=?[A-Za-z0-9_]*;console\[[A-Za-z0-9_()]+\]\('\[super-html\]\\x20'\+[A-Za-z0-9_]+\);\}/g, 'window.super_log=function(){}');
+      out = out.replace(/window\.super_log=function\(\)\{\}/g, 'window.super_log=function(){}');
+      out = out.replace(/window\['VConsole'\]\&\&\(window\['VConsole'\]\&\&\(window\[[A-Za-z0-9_()]+\]=new VConsole\(\)\)\);?/g, '');
+      out = out.replace(/var d=super_reg_search\(\/vconsole\\\.min\/\);super_eval\(d\);/g, '');
+      out = out.replace(/console\[a1\(0xf2\)\]\(a1\(0xd1\)\+window\['super_html_channel'\]\+'\}'\)/g, '!1');
+      out = out.replace(/window\[a7\(0x11f\)\]\&\&\(!super_html\['is_hide_download'\]\&\&\(super_html\['is_hide_download'\]=\(\)=>!1\),!super_html\['game_end'\]\&\&\(super_html\['game_end'\]=\(\)=>super_log\(a7\(0xfd\)\)\)\),window\[a7\(0x11f\)\]\&\&super_html\[a7\(0x114\)\]\?super_html\['game_ready'\]\(\):super_boot_engine\(\);/g, "window[a7(0x11f)]&&(!super_html['is_hide_download']&&(super_html['is_hide_download']=()=>!1),!super_html['game_end']&&(super_html['game_end']=()=>{})),window[a7(0x11f)]&&super_html[a7(0x114)]?super_html['game_ready']():super_boot_engine();");
+      return out;
+    }
+
+    async function applyPlayableConfig(opts = {}) {
+      const { deleteAndroid = false, deleteIos = false } = opts;
+      const nextAndroid = androidUrl.value.trim();
+      const nextIos = iosUrl.value.trim();
+      const found = detectStoreLinks(currentHtml, { allowFallback: true });
+      const shouldApplyAndroid = deleteAndroid || (!!nextAndroid && nextAndroid !== found?.android);
+      const shouldApplyIos = deleteIos || (!!nextIos && nextIos !== found?.ios);
+
+      if (!found) {
+        if (nextAndroid || nextIos) {
+          injectStoreOverride(nextAndroid, nextIos);
+          storeUiState = {
+            type: 'fallback',
+            android: nextAndroid || '',
+            ios: nextIos || ''
+          };
+          log('✅ 未检测到现成商店链接，已按当前输入注入新的商店链接');
+          renderPlayableConfig();
+          return;
+        }
+        log('⚠️ 未检测到可替换商店链接');
+        return;
+      }
+
+      if (found.type === 'config') {
+        const nextObj = { ...found.obj };
+        if (deleteAndroid) {
+          if (found.android) { delete nextObj.android_url; log('🗑️ 已删除 Android 链接'); }
+        } else if (shouldApplyAndroid) {
+          nextObj.android_url = nextAndroid;
+        }
+        if (deleteIos) {
+          if (found.ios) { delete nextObj.ios_url; log('🗑️ 已删除 iOS 链接'); }
+        } else if (shouldApplyIos) {
+          nextObj.ios_url = nextIos;
+        }
+        const nextRaw = `window.__PLAYABLE_CONFIG__ = ${JSON.stringify(nextObj)};`;
+        currentHtml = currentHtml.replace(found.raw, nextRaw);
+        storeUiState = { type: 'config', android: nextObj.android_url || '', ios: nextObj.ios_url || '' };
+        log('✅ 已应用商店链接更换（__PLAYABLE_CONFIG__ 模式）');
+        renderPlayableConfig();
+        return;
+      }
+
+      if (found.type === 'playable-params') {
+        const params = resolvedContext.playableParams;
+        if (deleteAndroid) {
+          if (found.android !== '') {
+            params.storeLink_android = '';
+            log('🗑️ 已删除 Android 链接');
+          }
+        } else if (shouldApplyAndroid) {
+          params.storeLink_android = nextAndroid;
+          log(`✅ 已更新 Android 链接`);
+        }
+        if (deleteIos) {
+          if (found.ios !== '') {
+            params.storeLink_ios = '';
+            log('🗑️ 已删除 iOS 链接');
+          }
+        } else if (shouldApplyIos) {
+          params.storeLink_ios = nextIos;
+          log(`✅ 已更新 iOS 链接`);
+        }
+        const newJson = JSON.stringify(params);
+        const encoded = new TextEncoder().encode(newJson);
+        let binary = '';
+        for (let i = 0; i < encoded.length; i++) binary += String.fromCharCode(encoded[i]);
+        const newB64 = btoa(binary);
+        const { result, hit } = strReplaceAll(currentHtml, resolvedContext.playableParamsB64, newB64);
+        if (hit > 0) {
+          currentHtml = result;
+          resolvedContext.playableParamsB64 = newB64;
+          storeUiState = { type: 'playable-params', android: params.storeLink_android || '', ios: params.storeLink_ios || '' };
+          log(`✅ 已写回 PLAYABLE_PARAMETERS（命中 ${hit} 处）`);
+        } else {
+          log('⚠️ PLAYABLE_PARAMETERS 写回失败：未命中原始 base64');
+        }
+        renderPlayableConfig();
+        return;
+      }
+
+      let replaceCount = 0;
+
+      if (found.source === 'html' || !found.source) {
+        let r;
+        if (deleteAndroid || shouldApplyAndroid) {
+          r = replaceStoreUrls(currentHtml, 'android', found.android, deleteAndroid ? '' : nextAndroid); currentHtml = r.text; replaceCount += r.hit;
+        }
+        if (deleteIos || shouldApplyIos) {
+          r = replaceStoreUrls(currentHtml, 'ios', found.ios, deleteIos ? '' : nextIos); currentHtml = r.text; replaceCount += r.hit;
+        }
+      } else if (found.source === 'js') {
+        let jsText = resolvedContext.jsText || '';
+        let r;
+        if (deleteAndroid || shouldApplyAndroid) {
+          r = replaceStoreUrls(jsText, 'android', found.android, deleteAndroid ? '' : nextAndroid); jsText = r.text; replaceCount += r.hit;
+        }
+        if (deleteIos || shouldApplyIos) {
+          r = replaceStoreUrls(jsText, 'ios', found.ios, deleteIos ? '' : nextIos); jsText = r.text; replaceCount += r.hit;
+        }
+
+        if (replaceCount > 0) {
+          const wroteBack = writeJsBackToHtml(jsText, { label: '外链 JS' });
+          if (!wroteBack) log('⚠️ 未能把修改后的外链 JS 写回最终 HTML');
+          resolvedContext.jsText = jsText;
+        }
+      } else if (found.source === 'zip') {
+        if (!resolvedContext.zipBase64 || !resolvedContext.zipFiles?.length || typeof JSZip === 'undefined') {
+          log('❌ ZIP 兜底替换失败：缺少 ZIP 上下文或 JSZip 未加载');
+          return;
+        }
+
+        const clean = resolvedContext.zipBase64.replace(/\s+/g, '');
+        const bytes = Uint8Array.from(atob(clean), c => c.charCodeAt(0));
+        const zip = await JSZip.loadAsync(bytes.buffer);
+
+        let iosHit = 0;
+        let androidHit = 0;
+
+        for (const f of resolvedContext.zipFiles) {
+          let text = f.text || '';
+          let r;
+          if (deleteAndroid || shouldApplyAndroid) {
+            r = replaceStoreUrls(text, 'android', found.android, deleteAndroid ? '' : nextAndroid); text = r.text; replaceCount += r.hit; androidHit += r.hit;
+          }
+          if (deleteIos || shouldApplyIos) {
+            r = replaceStoreUrls(text, 'ios', found.ios, deleteIos ? '' : nextIos); text = r.text; replaceCount += r.hit; iosHit += r.hit;
+          }
+          if (text !== f.text) zip.file(f.name, text);
+        }
+
+        const iosActuallyChanged = !deleteIos && nextIos && nextIos !== found.ios;
+        if (iosActuallyChanged && iosHit === 0) {
+          const target = resolvedContext.zipFiles.find(f => /assets\/main\/index\.js$/i.test(f.name));
+          if (target) {
+            const patch = `;(function(){var A=${JSON.stringify(nextAndroid || '')};var I=${JSON.stringify(nextIos)};window.super_html=window.super_html||{};function p(){if(A){window.super_html.google_play_url=A;window.super_html.google_play_cpp_url=A;window.super_html.android_url=A;}if(I){window.super_html.app_store_url=I;window.super_html.app_store_cpp_url=I;window.super_html.ios_url=I;}var isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent||'');if(I&&isIOS){window.CURRENT_URL=I;}else if(A){window.CURRENT_URL=A;}}p();var t=setInterval(p,500);setTimeout(function(){clearInterval(t);},30000);})();\n`;
+            zip.file(target.name, patch + (target.text || ''));
+            replaceCount += 1;
+            log('ℹ️ ZIP 内未命中 iOS 明文链接，已向 assets/main/index.js 注入 app_store 覆盖补丁');
+          }
+        }
+
+        if (replaceCount > 0) {
+          const newZipBase64 = await zip.generateAsync({ type: 'base64', compression: 'DEFLATE' });
+          let jsText = (resolvedContext.jsText || '');
+          if (/window\.__zip\s*=\s*\\"[\s\S]*?\\"\s*;/i.test(jsText)) {
+            jsText = jsText.replace(/window\.__zip\s*=\s*\\"[\s\S]*?\\"\s*;/i, `window.__zip = \\\"${newZipBase64}\\\";`);
+          } else {
+            jsText = jsText.replace(/window\.__zip\s*=\s*(["'`])[\s\S]*?\1\s*;/i, `window.__zip = "${newZipBase64}";`);
+          }
+          const wroteBack = writeJsBackToHtml(jsText, { label: '__zip 外链 JS' });
+          if (wroteBack) {
+            log('ℹ️ 已更新 __zip 并写回最终 HTML');
+          } else {
+            const htmlReplaced = currentHtml.includes('window.__zip') ? replaceZipInJs(currentHtml, newZipBase64) : null;
+            if (htmlReplaced) {
+              currentHtml = htmlReplaced;
+              log('ℹ️ 已直接更新内层 HTML 中的 window.__zip');
+            } else {
+              log('⚠️ 已更新 __zip，但未能把启动脚本写回最终 HTML');
+            }
+          }
+          resolvedContext.jsText = jsText;
+          resolvedContext.zipBase64 = newZipBase64;
+          resolvedContext.zipFiles = await tryReadZipFiles(newZipBase64);
+        }
+      }
+
+      if (replaceCount === 0 && ((shouldApplyAndroid && !deleteAndroid) || (shouldApplyIos && !deleteIos))) {
+        injectStoreOverride(deleteAndroid ? '' : nextAndroid, deleteIos ? '' : nextIos);
+        log('✅ 未命中明文链接，已注入外层覆盖配置（super_html + __PLAYABLE_CONFIG__ + CURRENT_URL）');
+      } else if (replaceCount === 0) {
+        log('⚠️ URL 兜底模式未命中可替换内容（可能新旧链接相同）');
+      } else {
+        log(`✅ 已应用商店链接更换（URL 兜底模式，命中 ${replaceCount} 处）`);
+      }
+
+      storeUiState = {
+        type: found.type || 'fallback',
+        source: found.source,
+        fileName: found.fileName,
+        android: deleteAndroid ? '' : (shouldApplyAndroid ? nextAndroid : (found.android || '')),
+        ios: deleteIos ? '' : (shouldApplyIos ? nextIos : (found.ios || ''))
+      };
+      renderPlayableConfig();
+    }
+
+    async function loadHtmlFile(file) {
+      const text = await file.text();
+      originalHtml = text;
+      currentHtml = text;
+      storeUiState = null;
+      resolvedContext = { jsUrl: '', jsText: '', zipBase64: '', zipFiles: [], dynamicResolved: false, playableParams: null, playableParamsB64: '' };
+
+      const inlineResolved = resolveInlineRenderedHtmlRecursive(currentHtml);
+      if (inlineResolved.resolved) {
+        currentHtml = inlineResolved.html;
+        resolvedContext.dynamicResolved = true;
+        log('✅ 检测到内联 al_renderHtml，已提取内层 HTML');
+      } else {
+        log(`ℹ️ 内联提取未触发：${inlineResolved.reason}`);
+      }
+
+      // 尝试动态还原（从外链 js 中提取 al_renderHtml 的 html）
+      const resolved = resolvedContext.dynamicResolved ? { resolved: false, reason: 'skipped-inline-already-resolved' } : await tryResolveDynamicHtml(currentHtml);
+      if (resolved.resolved) {
+        const nestedInline = resolveInlineRenderedHtmlRecursive(resolved.html);
+        currentHtml = nestedInline.html;
+        resolvedContext.dynamicResolved = true;
+        log('✅ 检测到动态模板，已自动还原完整 HTML');
+        if (nestedInline.resolved) {
+          log('✅ 动态模板内仍含内联 al_renderHtml，已继续提取内层 HTML');
+        }
+      } else {
+        log(`ℹ️ 动态还原未触发：${resolved.reason}`);
+      }
+
+      // 默认移除所有 <title> 标签
+      const before = currentHtml;
+      currentHtml = stripTitleTags(currentHtml);
+      if (before !== currentHtml) {
+        log('🧹 已自动删除 <title> 标签');
+      }
+
+      injectFileModeCompat();
+      log('ℹ️ 已注入 file:// 本地打开兼容补丁');
+
+      const base = file.name.replace(/\.html?$/i, '');
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      fileName = `${base}_${mm}${dd}.html`;
+
+      images = collectImagesFromAllSources();
+      selectedIdx = images.length ? 0 : -1;
+
+      fileInfo.innerHTML = `已加载：<b>${file.name}</b>（${(file.size/1024).toFixed(1)} KB）`;
+      log(`已加载 HTML：${file.name}`);
+      const by = summarizeImageSources();
+      log(`图片诊断：总计 ${images.length}（base64/html:${by.html}${by.zip ? `，zip文本:${by.zip}` : ''}${by.zipBin ? `，zip二进制:${by.zipBin}` : ''}${by.pp ? `，playable-params:${by.pp}` : ''}）`);
+      if (!images.length) log('⚠️ 未检测到图片（base64 或 ZIP 内图片文件）');
+      renderGrid();
+      renderPlayableConfig();
+      renderTitleConfig();
+    }
+
+    htmlDrop.addEventListener('click', () => htmlFile.click());
+    pickHtmlBtn.addEventListener('click', () => htmlFile.click());
+    htmlFile.addEventListener('change', e => {
+      const f = e.target.files?.[0];
+      if (f) {
+        log(`📂 已选择文件：${f.name}`);
+        loadHtmlFile(f);
+      }
+    });
+    wireDrop(htmlDrop, files => {
+      const f = files.find(x => x.name.toLowerCase().endsWith('.html') || x.type.includes('html')) || files[0];
+      if (f) loadHtmlFile(f);
+    });
+
+    replaceBtn.addEventListener('click', () => {
+      if (selectedIdx < 0) return;
+      imgFile.click();
+    });
+    imgFile.addEventListener('change', e => {
+      const f = e.target.files?.[0];
+      if (f && selectedIdx >= 0) replaceImageAt(selectedIdx, f);
+    });
+
+    // 1x1 透明 PNG（67 字节）
+    const TRANSPARENT_1X1_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQABNjN9GQAAAABJRElFTkSuQmCC';
+    async function clearImageAt(i) {
+      const img = images[i];
+      if (!img) return;
+      if (img.src === TRANSPARENT_1X1_PNG || img.displaySrc === TRANSPARENT_1X1_PNG) {
+        log(`ℹ️ 图片 #${i + 1} 已是透明像素，无需重复清除`);
+        return;
+      }
+      const oldSrc = img.src;
+      const newSrc = TRANSPARENT_1X1_PNG;
+      const { hit: replacedCount, storedNewSrc } = await applyImageReplaceInSource(img, oldSrc, newSrc);
+      if (replacedCount === 0) {
+        log(`⚠️ 图片 #${i + 1} 清除失败：未找到可替换目标`);
+        return;
+      }
+      images[i].src = storedNewSrc;
+      images[i].displaySrc = deobfuscateDataUrl(storedNewSrc);
+      images[i].mime = 'image/png';
+      images[i].hash = shortHash(storedNewSrc);
+      images[i].bytes = 67;
+      images[i].width = 1;
+      images[i].height = 1;
+      images[i].replaced = true;
+      log(`🗑️ 已清除图片 #${i + 1}（替换为 1×1 透明像素，命中 ${replacedCount} 处）`);
+      renderGrid();
+    }
+    clearImgBtn.addEventListener('click', () => {
+      if (selectedIdx >= 0) clearImageAt(selectedIdx);
+    });
+
+    
+    const toAdapterBtn = document.getElementById('toAdapterBtn');
+    if (toAdapterBtn) { toAdapterBtn.addEventListener('click', passToAdapter); }
+
+    downloadBtn.addEventListener('click', () => {
+      currentHtml = stripTitleTags(currentHtml);
+      currentHtml = stripDebugConsoleLogs(currentHtml);
+      injectRuntimeDebugMute();
+      const blob = new Blob([currentHtml], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName || 'modified.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      log(`📥 已下载：${a.download}`);
+    });
+
+    applyCfgBtn.addEventListener('click', applyPlayableConfig);
+
+    document.getElementById('deleteAndroidBtn').addEventListener('click', () => {
+      androidUrl.value = '';
+      applyPlayableConfig({ deleteAndroid: true });
+    });
+    document.getElementById('deleteIosBtn').addEventListener('click', () => {
+      iosUrl.value = '';
+      applyPlayableConfig({ deleteIos: true });
+    });
+
+    applyTitleBtn.addEventListener('click', applyTitleReplace);
+
+    window.addEventListener('error', (e) => {
+      log(`❌ 页面错误：${e.message}`);
+    });
+
+    log('工具已就绪：请拖拽 HTML 文件进来，或点“选择 HTML 文件”。');
+  
+// ── 桥接函数：把处理好的 HTML 传给渠道适配模块 ──
+function passToAdapter() {
+  if (!currentHtml) { alert('请先上传 HTML 文件'); return; }
+  // 调用适配工具的文件加载函数
+  const fname = (fileName || 'file').replace(/\.html$/i, '');
+  adapterLoadContent(currentHtml, fname);
+  switchTab('tab-adapter');
+}
+
+
+// ════════════════════════════════════════════════════
+//  渠道适配工具 JS
+// ════════════════════════════════════════════════════
+
 // ═══ FRAMEWORK DETECTION ═══
 const FW = { TRYPLAY:'tryplay', LUNA:'luna', GENERIC:'generic' };
 
@@ -269,32 +2133,32 @@ async function runAdapt() {
   const iosUrl=document.getElementById('iosUrl').value.trim();
   const fwLabels={tryplay:'Cocos2d+TryPlay',luna:'Unity+Luna Labs',generic:'Standard HTML5'};
 
-  log('info','File: '+originalFileName+'.html  '+( originalContent.length/1024/1024).toFixed(2)+'MB');
-  log('section','Framework: '+fwLabels[detectedFW]);
-  if (detectedUrls.ios) log('ok','iOS URL detected');
-  if (detectedUrls.android) log('ok','Android URL detected');
+  adapterLog('info','File: '+originalFileName+'.html  '+( originalContent.length/1024/1024).toFixed(2)+'MB');
+  adapterLog('section','Framework: '+fwLabels[detectedFW]);
+  if (detectedUrls.ios) adapterLog('ok','iOS URL detected');
+  if (detectedUrls.android) adapterLog('ok','Android URL detected');
   await sleep(200);
 
   for (const chId of selectedChannels) {
     const ch=CHANNELS.find(c=>c.id===chId);
-    log('section','-- '+ch.name+' --');
+    adapterLog('section','-- '+ch.name+' --');
     await sleep(80);
     try {
       const opts={androidUrl,iosUrl,fw:detectedFW,baseName:originalFileName};
       const result=ch.patch(originalContent,opts);
-      (result.warnings||[]).forEach(w=>log('warn','  ! '+w));
-      (result.infos||[]).forEach(i=>log('ok','  + '+i));
+      (result.warnings||[]).forEach(w=>adapterLog('warn','  ! '+w));
+      (result.infos||[]).forEach(i=>adapterLog('ok','  + '+i));
       generatedFiles.push({ch,...result});
-      log('ok','  -> '+result.outputName);
+      adapterLog('ok','  -> '+result.outputName);
     } catch(e) {
-      log('err','  ERROR: '+e.message);
+      adapterLog('err','  ERROR: '+e.message);
       console.error(e);
     }
     await sleep(120);
   }
 
   await sleep(200);
-  log('ok','Done! '+generatedFiles.length+' file(s) ready');
+  adapterLog('ok','Done! '+generatedFiles.length+' file(s) ready');
   document.getElementById('logDot').className='log-dot done';
   document.getElementById('logTitle').textContent='Done - '+generatedFiles.length+' file(s)';
   document.getElementById('btnGen').disabled=false;
@@ -322,7 +2186,7 @@ function dlFile(f) {
 }
 async function dlAll() { for(let i=0;i<generatedFiles.length;i++){dlFile(generatedFiles[i]);if(i<generatedFiles.length-1)await sleep(500);} }
 
-function log(type,msg) {
+function adapterLog(type,msg) {
   const body=document.getElementById('logBody');
   const ts=new Date().toTimeString().slice(0,8);
   const line=document.createElement('div'); line.className='ll '+type;
@@ -464,8 +2328,8 @@ function lunaInstallMTG(content,infos){
 function patchFacebook(content,{fw,baseName}){
   const warnings=[],infos=[];
   if(fw===FW.TRYPLAY){
-    const old='r.prototype.download=function(){console.log("fb \u70b9\u51fb\u4e0b\u8f7d"),window.FbPlayableAd&&window.FbPlayableAd.onCTAClick()},r';
-    const neu='r.prototype.download=function(){console.log("fb click");if(window.FbPlayableAd&&window.FbPlayableAd.onCTAClick){window.FbPlayableAd.onCTAClick();}},r';
+    const old='r.prototype.download=function(){console.adapterLog("fb \u70b9\u51fb\u4e0b\u8f7d"),window.FbPlayableAd&&window.FbPlayableAd.onCTAClick()},r';
+    const neu='r.prototype.download=function(){console.adapterLog("fb click");if(window.FbPlayableAd&&window.FbPlayableAd.onCTAClick){window.FbPlayableAd.onCTAClick();}},r';
     if(content.includes(old)){content=content.replace(old,neu);infos.push('FbPlayableAd.onCTAClick OK');}
     else if(!content.includes('FbPlayableAd.onCTAClick'))warnings.push('FbPlayableAd.onCTAClick not found');
     else infos.push('FbPlayableAd.onCTAClick already OK');
@@ -533,8 +2397,8 @@ function patchAppLovin(content,{androidUrl,iosUrl,fw,baseName}){
   if(!iosUrl)warnings.push('iOS Store URL not set');
   const sa=androidUrl||'YOUR_ANDROID_URL',si=iosUrl||'YOUR_IOS_URL';
   if(fw===FW.TRYPLAY){
-    const old='r.prototype.init=function(){},r.prototype.download=function(){console.log("\u5c55\u793a\u5e7f\u544a AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
-    const old2='r.prototype.init=function(){},r.prototype.download=function(){console.log("AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
+    const old='r.prototype.init=function(){},r.prototype.download=function(){console.adapterLog("\u5c55\u793a\u5e7f\u544a AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
+    const old2='r.prototype.init=function(){},r.prototype.download=function(){console.adapterLog("AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
     const neu='r.prototype.init=function(){this._ic=0;var self=this;if(window.mraid){if(window.mraid.getState()==="loading"){window.mraid.addEventListener("ready",function(){self._onReady();});}else{this._onReady();}}},r.prototype._onReady=function(){window.mraid.addEventListener("viewableChange",function(v){if(!v){try{cc.audioEngine&&cc.audioEngine.stopAll();}catch(e){}}});},r.prototype.download=function(){this._ic++;if(this._ic<2){return;}var isA=Boolean(navigator.userAgent.match(/android/gi));var u=isA?"'+sa+'":"'+si+'";if(window.mraid&&window.mraid.open){window.mraid.open(u);}else{window.open(u,"_blank");}},r';
     if(content.includes(old2)){content=content.replace(old2,neu);infos.push('AppLovin adapter updated (MRAID v2 + first-click guard)');}
     else if(content.includes(old)){content=content.replace(old,neu);infos.push('AppLovin adapter updated (MRAID v2 + first-click guard)');}
@@ -608,10 +2472,10 @@ function patchMintegral(content,{androidUrl,iosUrl,fw,baseName}){
     // Fix console overrides (Cocos2d + DragonBones polyfills)
     content=fixConsoleOverride(content,infos,warnings);
     // Fix Mindworks adapter lifecycle
-    const old='c.prototype.init=function(){window.gameStart=function(){console.log("\u5f00\u59cb\u8c03\u7528")},window.gameClose=function(){console.log("\u7ed3\u675f\u8c03\u7528")},window.gameReady&&window.gameReady()},c.prototype.gameEnd=function(){window.gameEnd&&window.gameEnd()},c.prototype.download=function(){console.log("mtg \u70b9\u51fb\u4e0b\u8f7d"),window.install&&window.install()}';
+    const old='c.prototype.init=function(){window.gameStart=function(){console.adapterLog("\u5f00\u59cb\u8c03\u7528")},window.gameClose=function(){console.adapterLog("\u7ed3\u675f\u8c03\u7528")},window.gameReady&&window.gameReady()},c.prototype.gameEnd=function(){window.gameEnd&&window.gameEnd()},c.prototype.download=function(){console.adapterLog("mtg \u70b9\u51fb\u4e0b\u8f7d"),window.install&&window.install()}';
     const neu='c.prototype.init=function(){window.gameStart=function(){};window.gameClose=function(){try{cc.audioEngine&&cc.audioEngine.stopAll();}catch(e){}};window.gameRetry=function(){};if(window.gameReady){window.gameReady();}},c.prototype.gameEnd=function(){if(window.gameEnd){window.gameEnd();}},c.prototype.download=function(){if(window.install){window.install();}}';
     if(content.includes(old)){content=content.replace(old,neu);infos.push('Mindworks adapter lifecycle updated');}
-    else{content=content.replace('r.prototype.download=function(){console.log("mtg \u70b9\u51fb\u4e0b\u8f7d"),window.install&&window.install()}','r.prototype.download=function(){if(window.install){window.install();}}');warnings.push('Mindworks adapter structure differs, simple fix applied');}
+    else{content=content.replace('r.prototype.download=function(){console.adapterLog("mtg \u70b9\u51fb\u4e0b\u8f7d"),window.install&&window.install()}','r.prototype.download=function(){if(window.install){window.install();}}');warnings.push('Mindworks adapter structure differs, simple fix applied');}
     content=fixWindowTop(content,infos,warnings);
 
   } else if(fw===FW.LUNA){
@@ -682,6 +2546,21 @@ function patchIronSource(content,{fw,baseName}){
   checkSize(content,5,infos,warnings,'IronSource');
   return{content,outputName:baseName+'_ironsource.html',warnings,infos,ch:{fmt:'HTML'}};
 }
+
+// ── 桥接接收函数：接收来自替换工具的 HTML 内容 ──
+function adapterLoadContent(htmlText, fname) {
+  originalContent = htmlText;
+  originalFileName = fname || 'file';
+  document.getElementById('fileName').textContent = fname + '.html';
+  document.getElementById('fileSize').textContent = (htmlText.length/1024/1024).toFixed(2) + ' MB';
+  document.getElementById('fileInfo').classList.add('show');
+  detectedFW = detectFramework(htmlText);
+  detectedUrls = detectStoreUrls(htmlText);
+  showFwBadge();
+  prefillUrls();
+  updateBtn();
+}
+
 </script>
 </body>
 </html>

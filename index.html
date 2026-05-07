@@ -2952,23 +2952,81 @@ function patchAppLovin(content,{androidUrl,iosUrl,fw,baseName}){
   if(!androidUrl)warnings.push('Android Store URL not set');
   if(!iosUrl)warnings.push('iOS Store URL not set');
   const sa=androidUrl||'YOUR_ANDROID_URL',si=iosUrl||'YOUR_IOS_URL';
+
+  // ALPlayableAnalytics 打点辅助函数（注入到 HTML 里）
+  // 文档要求必须用 safety check 包裹，不能自定义事件名
+  const analyticsHelper = `<scr`+`ipt>
+// AppLovin ALPlayableAnalytics — https://support.axon.ai/en/growth/promoting-your-apps/creatives/playable-analytics-integration
+window.__al = {
+  track: function(evt) {
+    if (typeof window.ALPlayableAnalytics !== 'undefined') {
+      window.ALPlayableAnalytics.trackEvent(evt);
+    }
+  },
+  // 必填：广告对用户可见时调用
+  displayed: function() { window.__al.track('DISPLAYED'); },
+  // 可选：有 loading 界面时调用
+  loading: function()  { window.__al.track('LOADING'); },
+  loaded: function()   { window.__al.track('LOADED'); },
+  // 可选：CTA 点击时调用（在 mraid.open 之前）
+  ctaClicked: function() { window.__al.track('CTA_CLICKED'); },
+  // 可选：游戏结束卡显示时调用
+  endcardShown: function() { window.__al.track('ENDCARD_SHOWN'); },
+  // 可选 challenge 系列（仅在游戏有明确关卡/挑战时使用）
+  challengeStarted: function() { window.__al.track('CHALLENGE_STARTED'); },
+  challengeSolved:  function() { window.__al.track('CHALLENGE_SOLVED'); },
+  challengeFailed:  function() { window.__al.track('CHALLENGE_FAILED'); },
+  challengeRetry:   function() { window.__al.track('CHALLENGE_RETRY'); },
+  pass25: function() { window.__al.track('CHALLENGE_PASS_25'); },
+  pass50: function() { window.__al.track('CHALLENGE_PASS_50'); },
+  pass75: function() { window.__al.track('CHALLENGE_PASS_75'); }
+};
+<`+`/script>`;
+
   if(fw===FW.TRYPLAY){
     const old='r.prototype.init=function(){},r.prototype.download=function(){console.adapterLog("\u5c55\u793a\u5e7f\u544a AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
     const old2='r.prototype.init=function(){},r.prototype.download=function(){console.adapterLog("AppLovin \u70b9\u51fb\u4e0b\u8f7d")},r';
-    const neu='r.prototype.init=function(){this._ic=0;var self=this;if(window.mraid){if(window.mraid.getState()==="loading"){window.mraid.addEventListener("ready",function(){self._onReady();});}else{this._onReady();}}},r.prototype._onReady=function(){window.mraid.addEventListener("viewableChange",function(v){if(!v){try{cc.audioEngine&&cc.audioEngine.stopAll();}catch(e){}}});},r.prototype.download=function(){this._ic++;if(this._ic<2){return;}var isA=Boolean(navigator.userAgent.match(/android/gi));var u=isA?"'+sa+'":"'+si+'";if(window.mraid&&window.mraid.open){window.mraid.open(u);}else{window.open(u,"_blank");}},r';
-    if(content.includes(old2)){content=content.replace(old2,neu);infos.push('AppLovin adapter updated (MRAID v2 + first-click guard)');}
-    else if(content.includes(old)){content=content.replace(old,neu);infos.push('AppLovin adapter updated (MRAID v2 + first-click guard)');}
+    const neu='r.prototype.init=function(){this._ic=0;var self=this;if(window.mraid){if(window.mraid.getState()==="loading"){window.mraid.addEventListener("ready",function(){self._onReady();});}else{this._onReady();}}},r.prototype._onReady=function(){window.mraid.addEventListener("viewableChange",function(v){if(v){window.__al&&window.__al.displayed();}else{try{cc.audioEngine&&cc.audioEngine.stopAll();}catch(e){}}});},r.prototype.download=function(){this._ic++;if(this._ic<2){return;}window.__al&&window.__al.ctaClicked();var isA=Boolean(navigator.userAgent.match(/android/gi));var u=isA?"'+sa+'":" '+si+'";if(window.mraid&&window.mraid.open){window.mraid.open(u);}else{window.open(u,"_blank");}},r';
+    if(content.includes(old2)){content=content.replace(old2,neu);infos.push('AppLovin adapter updated (MRAID v2 + ALPlayableAnalytics)');}
+    else if(content.includes(old)){content=content.replace(old,neu);infos.push('AppLovin adapter updated (MRAID v2 + ALPlayableAnalytics)');}
     else warnings.push('AppLovin adapter structure differs, check output');
     content=fixWindowTop(content,infos,warnings);
   } else if(fw===FW.LUNA){
     content=lunaSetPlatform(content,'unityads',infos,warnings);
     infos.push('Luna MRAID path: mraid.open() handled by framework');
   } else {
-    content=injectBodyEnd(content,'<scr'+'ipt>(function(){var _ic=0,_a="'+sa+'",_i="'+si+'";function _dl(){_ic++;if(_ic<2)return;var isA=/android/i.test(navigator.userAgent);var u=isA?_a:_i;if(window.mraid&&window.mraid.open){window.mraid.open(u);}else{window.open(u,"_blank");}}if(window.mraid){var r=function(){window.mraid.addEventListener("viewableChange",function(v){if(!v){try{document.querySelectorAll("audio,video").forEach(function(e){e.pause();});}catch(e){}}});};window.mraid.getState()==="loading"?window.mraid.addEventListener("ready",r):r();}window.__alDl=_dl;})();<'+'/script>');
+    // Generic HTML: 注入完整 MRAID v2 + 打点
+    content=injectBodyEnd(content,'<scr'+'ipt>(function(){'+
+      'var _ic=0,_a="'+sa+'",_i="'+si+'";'+
+      'function _dl(){'+
+        '_ic++;if(_ic<2)return;'+
+        'window.__al&&window.__al.ctaClicked();'+
+        'var isA=/android/i.test(navigator.userAgent);'+
+        'var u=isA?_a:_i;'+
+        'if(window.mraid&&window.mraid.open){window.mraid.open(u);}'+
+        'else{window.open(u,"_blank");}'+
+      '}'+
+      'function _onReady(){'+
+        'window.mraid.addEventListener("viewableChange",function(v){'+
+          'if(v){window.__al&&window.__al.displayed();}'+
+          'else{try{document.querySelectorAll("audio,video").forEach(function(e){e.pause();});}catch(e){}}'+
+        '});'+
+        'if(window.mraid.isViewable()){window.__al&&window.__al.displayed();}'+
+      '}'+
+      'if(window.mraid){'+
+        'window.mraid.getState()==="loading"?window.mraid.addEventListener("ready",_onReady):_onReady();'+
+      '}'+
+      'window.__alDl=_dl;'+
+    '})();<'+'/script>');
   }
+
+  // 注入打点辅助对象（所有框架共用）
+  content=injectHead(content,analyticsHelper);
+  infos.push('ALPlayableAnalytics helper injected (DISPLAYED + CTA_CLICKED + challenge hooks)');
+
   content=injectHead(content,'<meta data-name="ad.orientation" content="portrait,landscape">');
   infos.push('dual orientation meta');
-  content=setComment(content,'<!-- APPLOVIN_MAX_PLAYABLE_MRAID2 -->');
+  content=setComment(content,'<!-- APPLOVIN_MAX_PLAYABLE_MRAID2_ANALYTICS -->');
   checkSize(content,5,infos,warnings,'AppLovin');
   return{content,outputName:baseName+'_applovin.html',warnings,infos,ch:{fmt:'HTML'}};
 }
